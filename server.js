@@ -6,7 +6,7 @@ const port = process.env.PORT
 const startServer = async () => {
     try {
         await mongoose.connect(process.env.MONGODB_URI)
-        console.log('MongoDB connected')
+        console.log('MongoDB connected testing done')
         app.listen(port, () => {
             console.log(`Server running on port ${port}`)
         })
