@@ -5,7 +5,7 @@ const tourPackageSchema = new mongoose.Schema({
   metaDataId: {
     type: mongoose.Schema.Types.ObjectId,
     ref: "MetaData",
-    required: true
+    unique: true
   },
 
   adminId: {
