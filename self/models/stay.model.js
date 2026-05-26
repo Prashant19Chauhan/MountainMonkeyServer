@@ -38,7 +38,8 @@ const staySchema = new mongoose.Schema({
   metaDataId: {
     type: mongoose.Schema.Types.ObjectId,
     ref: "MetaData",
-    unique: true
+    unique: true,
+    sparse: true
   },
   
   adminId: mongoose.Schema.Types.ObjectId,

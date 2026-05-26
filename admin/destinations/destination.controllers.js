@@ -52,10 +52,13 @@ export const getDestinationById = async (req, res, next) => {
             return errorHandler(StatusCodes.BAD_REQUEST, "Destination ID is required", next);
         }
 
+
         const destination = await Destination.findOne({ _id: id, adminId })
             .select("-aiMetadata.embedding")
             .populate("mainCity", "name")
             .populate("nearbyDestinations.destinationId", "name images");
+
+        console.log("destination:", destination);
 
         if (!destination) {
             return errorHandler(StatusCodes.NOT_FOUND, "Destination not found", next);

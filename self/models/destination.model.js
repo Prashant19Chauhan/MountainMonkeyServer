@@ -5,7 +5,8 @@ const destinationSchema = new mongoose.Schema({
   metaDataId: {
     type: mongoose.Schema.Types.ObjectId,
     ref: "MetaData",
-    unique: true
+    unique: true,
+    sparse: true
   },
 
   name: {
