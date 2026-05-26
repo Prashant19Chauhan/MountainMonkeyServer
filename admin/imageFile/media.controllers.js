@@ -2,12 +2,30 @@ import { Folder, Category, ImageFile } from '../self/mediaModels.js';
 import { StatusCodes } from '../../self/utility/error.utils.js';
 import fs from 'fs';
 import path from 'path';
+import { v2 as cloudinary } from 'cloudinary';
 
 // ── Helper: safely delete local files ────────────────────────────────────
 
 const cleanLocalFile = (filePath) => {
     if (filePath && fs.existsSync(filePath)) {
         fs.unlinkSync(filePath);
+    }
+};
+
+const deleteCloudinaryFile = async (imageUrl) => {
+    try {
+        if (imageUrl && imageUrl.startsWith("http")) {
+            const parts = imageUrl.split('/');
+            const uploadIndex = parts.indexOf('upload');
+            if (uploadIndex !== -1 && parts.length > uploadIndex + 2) {
+                const publicIdWithExt = parts.slice(uploadIndex + 2).join('/');
+                const publicId = publicIdWithExt.split('.').slice(0, -1).join('.');
+                await cloudinary.uploader.destroy(publicId);
+                console.log("Deleted from Cloudinary:", publicId);
+            }
+        }
+    } catch (err) {
+        console.error("Failed to delete from Cloudinary:", err);
     }
 };
 
@@ -79,12 +97,16 @@ export const deleteFolder = async (req, res) => {
             return res.status(StatusCodes.NOT_FOUND).json({ success: false, message: "Folder not found" });
         }
 
-        // Delete all images in folder from disk
+        // Delete all images in folder from disk or Cloudinary
         const childImages = await ImageFile.find({ folderId: id, userId });
-        childImages.forEach((img) => {
-            const physicalPath = path.join(process.cwd(), img.url);
-            cleanLocalFile(physicalPath);
-        });
+        for (const img of childImages) {
+            if (img.url && img.url.startsWith("http")) {
+                await deleteCloudinaryFile(img.url);
+            } else {
+                const physicalPath = path.join(process.cwd(), img.url);
+                cleanLocalFile(physicalPath);
+            }
+        }
 
         await ImageFile.deleteMany({ folderId: id });
         await Folder.findByIdAndDelete(id);
@@ -112,6 +134,9 @@ export const createImageFile = async (req, res) => {
 
         if (!title || !folderId || !category) {
             cleanLocalFile(req.file.path);
+            if (req.file.path && req.file.path.startsWith("http")) {
+                await deleteCloudinaryFile(req.file.path);
+            }
             return res.status(StatusCodes.BAD_REQUEST).json({
                 success: false,
                 message: "Required fields are missing: 'title', 'folderId', and 'category' are required",
@@ -121,14 +146,17 @@ export const createImageFile = async (req, res) => {
         const folderExists = await Folder.findOne({ _id: folderId, userId });
         if (!folderExists) {
             cleanLocalFile(req.file.path);
+            if (req.file.path && req.file.path.startsWith("http")) {
+                await deleteCloudinaryFile(req.file.path);
+            }
             return res.status(StatusCodes.NOT_FOUND).json({ success: false, message: "Target folder not found" });
         }
 
-        const staticAssetUrl = `/uploads/${req.file.filename}`;
+        const imageUrl = req.file.path || `/uploads/${req.file.filename}`;
 
         const newImage = await ImageFile.create({
             title: title.trim(),
-            url: staticAssetUrl,
+            url: imageUrl,
             folderId,
             category: category.trim(),
             userId,
@@ -137,7 +165,12 @@ export const createImageFile = async (req, res) => {
         return res.status(StatusCodes.CREATED).json({ success: true, message: "Image uploaded successfully", data: newImage });
 
     } catch (error) {
-        if (req.file) cleanLocalFile(req.file.path);
+        if (req.file) {
+            cleanLocalFile(req.file.path);
+            if (req.file.path && req.file.path.startsWith("http")) {
+                await deleteCloudinaryFile(req.file.path);
+            }
+        }
         return res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({ success: false, message: "Failed to upload image", error: error.message });
     }
 };
@@ -169,8 +202,12 @@ export const deleteImageFile = async (req, res) => {
             return res.status(StatusCodes.NOT_FOUND).json({ success: false, message: "Image not found" });
         }
 
-        const physicalDrivePath = path.join(process.cwd(), targetImage.url);
-        cleanLocalFile(physicalDrivePath);
+        if (targetImage.url && targetImage.url.startsWith("http")) {
+            await deleteCloudinaryFile(targetImage.url);
+        } else {
+            const physicalDrivePath = path.join(process.cwd(), targetImage.url);
+            cleanLocalFile(physicalDrivePath);
+        }
 
         await ImageFile.findByIdAndDelete(id);
 

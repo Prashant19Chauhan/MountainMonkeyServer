@@ -1,39 +1,62 @@
-import multer from 'multer';
-import path from 'path';
-import fs from 'fs';
+import multer from "multer";
+import { v2 as cloudinary } from "cloudinary";
+import { CloudinaryStorage } from "multer-storage-cloudinary";
 
-// Guarantee that destination storage folder directory exists physically on server boot
-const uploadDir = 'uploads/';
-if (!fs.existsSync(uploadDir)) {
-  fs.mkdirSync(uploadDir, { recursive: true });
-}
+// ===============================
+// Cloudinary Config
+// ===============================
 
-// 1. Storage Configuration Rules
-const storage = multer.diskStorage({
-  destination: (req, file, cb) => {
-    cb(null, uploadDir);
+import { cloudinaryConfig } from "../utility/cloudinary.utils.js";
+cloudinaryConfig()
+
+// ===============================
+// Cloudinary Storage Config
+// ===============================
+const storage = new CloudinaryStorage({
+  cloudinary: cloudinary,
+
+  params: async (req, file) => {
+    return {
+      folder: "mountain-monkey",
+
+      allowed_formats: ["jpg", "jpeg", "png", "webp", "gif"],
+
+      public_id: `${Date.now()}-${Math.round(Math.random() * 1e9)}`,
+    };
   },
-  filename: (req, file, cb) => {
-    const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9);
-    const fileExtension = path.extname(file.originalname).toLowerCase();
-    cb(null, `${file.fieldname}-${uniqueSuffix}${fileExtension}`);
-  }
 });
 
-// 2. Format Validation Guard
+// ===============================
+// File Validation
+// ===============================
 const fileFilter = (req, file, cb) => {
   const allowedExtensions = /jpeg|jpg|png|webp|gif/;
+
   const mimeTypeMatch = allowedExtensions.test(file.mimetype);
-  const extNameMatch = allowedExtensions.test(path.extname(file.originalname).toLowerCase());
+
+  const extNameMatch = allowedExtensions.test(
+    file.originalname.split(".").pop().toLowerCase()
+  );
 
   if (mimeTypeMatch && extNameMatch) {
     return cb(null, true);
   }
-  cb(new Error('Format rejected. Only standard image files are allowed!'), false);
+
+  cb(
+    new Error("Format rejected. Only image files are allowed!"),
+    false
+  );
 };
 
-// 3. Export Configured Multer Middleware Instance
+// ===============================
+// Multer Middleware
+// ===============================
 export const uploadMiddleware = multer({
-  storage: storage,
-  fileFilter: fileFilter // Strict 5MB file threshold limits
+  storage,
+
+  fileFilter,
+
+  limits: {
+    fileSize: 5 * 1024 * 1024, // 5MB
+  },
 });

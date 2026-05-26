@@ -1,5 +1,4 @@
 import express from "express"
-import dotenv from "dotenv";
 
 import cookieParser from "cookie-parser";
 import cors from "cors";
@@ -10,9 +9,6 @@ import { StatusCodes } from "http-status-codes";
 
 import userRouter from "./user.routes.js";
 import adminRouter from "./admin.routes.js";
-
-
-dotenv.config()
 
 const app = express()
 

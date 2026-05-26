@@ -1,3 +1,4 @@
+import "./self/utility/loadEnv.js";
 import mongoose from "mongoose";
 import app from "./src/app.js";
 
