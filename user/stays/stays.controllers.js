@@ -5,11 +5,14 @@ import { errorHandler, sendSuccess, StatusCodes } from "../../self/utility/error
 // Fetch all stays (for main grid)
 export const getAllStays = async (req, res, next) => {
     try {
+        console.log("request hit ")
         const stays = await StayModel.find({ isActive: true })
             .select("name destinationId location.address priceRange ratings images popularityScore aiScore type aiMetaData")
             .populate("destinationId", "name location.address")
             .sort({ popularityScore: -1, "ratings.average": -1 })
             .limit(12);
+
+        console.log("stays: ", stays);
 
         return sendSuccess(res, StatusCodes.OK, "Stays fetched successfully", stays);
     } catch (error) {
