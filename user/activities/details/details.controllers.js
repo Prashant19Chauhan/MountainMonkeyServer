@@ -4,9 +4,9 @@ import { errorHandler, sendSuccess, StatusCodes } from "../../../self/utility/er
 
 export const getActivityDetails = async (req, res, next) => {
     try {
-        const { activityId } = req.params;
+        const { activitySlug } = req.params;
 
-        const activityDetails = await ActivitiesModel.findById(activityId)
+        const activityDetails = await ActivitiesModel.findOne({ slug: activitySlug })
             .select("-isActive -embedding -aiSummary -location.coordinates -location.mainCity")
             .populate("metaDataId", "-_id -pageId -adminId -lastModified")
             .lean();

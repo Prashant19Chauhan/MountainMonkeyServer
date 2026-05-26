@@ -46,6 +46,13 @@ const staySchema = new mongoose.Schema({
 
   name: String,
 
+  slug: {
+    type: String,
+    unique: true,
+    index: true,
+    sparse: true
+  },
+
   shortDescription: String,
 
   longDescription: String,
@@ -153,6 +160,11 @@ const staySchema = new mongoose.Schema({
   popularityScore: Number,
 
   images: [String],
+
+  currentPrice: {
+    type: Number,
+    default: 0
+  },
 
   isActive: {
     type: Boolean,

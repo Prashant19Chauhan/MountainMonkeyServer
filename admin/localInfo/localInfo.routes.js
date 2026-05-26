@@ -5,9 +5,9 @@ import { authMiddleware } from "../../self/middleware/auth.middlewares.js";
 const router = express.Router();
 
 router.get("/", authMiddleware(["admin"], ["admin"]), getAllLocalInfo);
-router.get("/:id", authMiddleware(["admin"], ["admin"]), getLocalInfo);
+router.get("/:slug", authMiddleware(["admin"], ["admin"]), getLocalInfo);
 router.post("/", authMiddleware(["admin"], ["admin"]), createLocalInfo);
-router.put("/:id", authMiddleware(["admin"], ["admin"]), updateLocalInfo);
-router.delete("/:id", authMiddleware(["admin"], ["admin"]), deleteLocalInfo);
+router.put("/:slug", authMiddleware(["admin"], ["admin"]), updateLocalInfo);
+router.delete("/:slug", authMiddleware(["admin"], ["admin"]), deleteLocalInfo);
 
 export default router;

@@ -27,11 +27,11 @@ router.get("/advertisements", getDestinationAdvertisements);
 
 
 //destination details APIs --------------------------------------------------
-router.get("/details/:destinationId", getDestinationDetails);
-router.get("/activities/:destinationId", getDestinationsActivities);
-router.get("/stays/:destinationId", getDestinationsStays);
-router.get("/local-info/:destinationId", getDestinationLocalInfo);
-router.get("/packages/:destinationId", getDestinationPackages);
+router.get("/details/:destinationSlug", getDestinationDetails);
+router.get("/activities/:destinationSlug", getDestinationsActivities);
+router.get("/stays/:destinationSlug", getDestinationsStays);
+router.get("/local-info/:destinationSlug", getDestinationLocalInfo);
+router.get("/packages/:destinationSlug", getDestinationPackages);
 
 
 export default router;

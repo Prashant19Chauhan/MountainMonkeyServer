@@ -1,5 +1,6 @@
 import Activity from "../../self/models/activity.model.js";
 import { errorHandler, sendSuccess, StatusCodes } from "../../self/utility/error.utils.js";
+import { generateSlug } from "../../self/utility/slug.utils.js";
 import { activityValidationSchema } from "./activitySchema.validation.js";
 
 // ── Helpers ────────────────────────────────────────────────────────────────
@@ -28,9 +29,18 @@ export const createActivity = async (req, res, next) => {
 
         const validatedData = validation.data;
 
+        const slug = generateSlug(validatedData.name);
+
+        // Enforce slug uniqueness
+        const slugExists = await Activity.findOne({ slug });
+        if (slugExists) {
+            return errorHandler(StatusCodes.CONFLICT, `An activity with the slug '${slug}' already exists. Please use a different name.`, next);
+        }
+
         const activity = await Activity.create({
             ...validatedData,
             adminId,
+            slug,
         });
 
         return sendSuccess(res, StatusCodes.CREATED, "Activity created successfully", activity);
@@ -44,12 +54,12 @@ export const createActivity = async (req, res, next) => {
 
 export const updateActivity = async (req, res, next) => {
     try {
-        const { id } = req.params;
+        const { slug } = req.params;
         const data = req.body;
         const adminId = req.user?._id;
 
-        if (!id) {
-            return errorHandler(StatusCodes.BAD_REQUEST, "Activity ID is required", next);
+        if (!slug) {
+            return errorHandler(StatusCodes.BAD_REQUEST, "Activity slug is required", next);
         }
 
         const validation = activityValidationSchema.partial().safeParse(data);
@@ -59,17 +69,25 @@ export const updateActivity = async (req, res, next) => {
 
         const validatedData = validation.data;
 
-        const activity = await Activity.findOneAndUpdate(
-            { _id: id, adminId },
-            { ...validatedData },
-            { new: true, runValidators: true }
-        );
-
-        if (!activity) {
+        const existingActivity = await Activity.findOne({ slug, adminId });
+        if (!existingActivity) {
             return errorHandler(StatusCodes.NOT_FOUND, "Activity not found or you do not have permission to update it", next);
         }
 
-        return sendSuccess(res, StatusCodes.OK, "Activity updated successfully", activity);
+        // If name is being changed, regenerate the slug
+        if (validatedData.name && validatedData.name !== existingActivity.name) {
+            const newSlug = generateSlug(validatedData.name);
+            const slugExists = await Activity.findOne({ slug: newSlug, _id: { $ne: existingActivity._id } });
+            if (slugExists) {
+                return errorHandler(StatusCodes.CONFLICT, `An activity with the slug '${newSlug}' already exists. Please use a different name.`, next);
+            }
+            validatedData.slug = newSlug;
+        }
+
+        Object.assign(existingActivity, validatedData);
+        await existingActivity.save();
+
+        return sendSuccess(res, StatusCodes.OK, "Activity updated successfully", existingActivity);
 
     } catch (error) {
         return errorHandler(StatusCodes.INTERNAL_SERVER_ERROR, error.message || "Failed to update activity", next);
@@ -80,14 +98,14 @@ export const updateActivity = async (req, res, next) => {
 
 export const deleteActivity = async (req, res, next) => {
     try {
-        const { id } = req.params;
+        const { slug } = req.params;
         const adminId = req.user?._id;
 
-        if (!id) {
-            return errorHandler(StatusCodes.BAD_REQUEST, "Activity ID is required", next);
+        if (!slug) {
+            return errorHandler(StatusCodes.BAD_REQUEST, "Activity slug is required", next);
         }
 
-        const activity = await Activity.findOne({ _id: id, adminId });
+        const activity = await Activity.findOne({ slug, adminId });
         if (!activity) {
             return errorHandler(StatusCodes.NOT_FOUND, "Activity not found or you do not have permission to delete it", next);
         }
@@ -105,14 +123,14 @@ export const deleteActivity = async (req, res, next) => {
 
 export const getActivity = async (req, res, next) => {
     try {
-        const { id } = req.params;
+        const { slug } = req.params;
         const adminId = req.user?._id;
 
-        if (!id) {
-            return errorHandler(StatusCodes.BAD_REQUEST, "Activity ID is required", next);
+        if (!slug) {
+            return errorHandler(StatusCodes.BAD_REQUEST, "Activity slug is required", next);
         }
 
-        const activity = await Activity.findOne({ _id: id, adminId })
+        const activity = await Activity.findOne({ slug, adminId })
             .select("-embedding")
             .populate("destinationId", "name")
             .populate("location.mainCity", "name");
@@ -132,6 +150,7 @@ export const getActivity = async (req, res, next) => {
 
 export const getAllActivities = async (req, res, next) => {
     try {
+        
         const adminId = req.user?._id;
         let { page = 1, limit = 10, search = "" } = req.query;
         page = Number(page);
@@ -175,5 +194,36 @@ export const getAllActivities = async (req, res, next) => {
 
     } catch (error) {
         return errorHandler(StatusCodes.INTERNAL_SERVER_ERROR, "Failed to get activities", next);
+    }
+};
+
+export const updateActivityCurrentPrice = async (req, res, next) => {
+    try {
+        const { slug } = req.params;
+        const { currentPrice } = req.body;
+        const adminId = req.user?._id;
+
+        if (!slug) {
+            return errorHandler(StatusCodes.BAD_REQUEST, "Activity slug is required", next);
+        }
+
+        if (currentPrice === undefined || isNaN(Number(currentPrice))) {
+            return errorHandler(StatusCodes.BAD_REQUEST, "Valid current price is required", next);
+        }
+
+        const activity = await Activity.findOneAndUpdate(
+            { slug, adminId },
+            { currentPrice: Number(currentPrice) },
+            { new: true, runValidators: true }
+        );
+
+        if (!activity) {
+            return errorHandler(StatusCodes.NOT_FOUND, "Activity not found or you do not have permission to update it", next);
+        }
+
+        return sendSuccess(res, StatusCodes.OK, "Activity current price updated successfully", activity);
+
+    } catch (error) {
+        return errorHandler(StatusCodes.INTERNAL_SERVER_ERROR, error.message || "Failed to update current price", next);
     }
 };

@@ -25,6 +25,12 @@ export const createDestination = async (req, res, next) => {
 
         const slug = generateSlug(data.name);
 
+        // Enforce slug uniqueness
+        const slugExists = await Destination.findOne({ slug });
+        if (slugExists) {
+            return errorHandler(StatusCodes.CONFLICT, `A destination with the slug '${slug}' already exists. Please use a different name.`, next);
+        }
+
         const destination = new Destination({
             ...validationResult.data,
             slug,
@@ -34,7 +40,7 @@ export const createDestination = async (req, res, next) => {
 
         await destination.save();
 
-        return sendSuccess(res, StatusCodes.CREATED, "Destination created successfully");
+        return sendSuccess(res, StatusCodes.CREATED, "Destination created successfully", destination);
 
     } catch (error) {
         return errorHandler(StatusCodes.INTERNAL_SERVER_ERROR, error.message || "Failed to create destination", next);
@@ -45,20 +51,17 @@ export const createDestination = async (req, res, next) => {
 
 export const getDestinationById = async (req, res, next) => {
     try {
-        const { id } = req.params;
+        const { slug } = req.params;
         const adminId = req.user?._id;
 
-        if (!id) {
-            return errorHandler(StatusCodes.BAD_REQUEST, "Destination ID is required", next);
+        if (!slug) {
+            return errorHandler(StatusCodes.BAD_REQUEST, "Destination slug is required", next);
         }
 
-
-        const destination = await Destination.findOne({ _id: id, adminId })
+        const destination = await Destination.findOne({ slug, adminId })
             .select("-aiMetadata.embedding")
             .populate("mainCity", "name")
             .populate("nearbyDestinations.destinationId", "name images");
-
-        console.log("destination:", destination);
 
         if (!destination) {
             return errorHandler(StatusCodes.NOT_FOUND, "Destination not found", next);
@@ -95,7 +98,7 @@ export const getAllDestinations = async (req, res, next) => {
 
         const [destinations, total] = await Promise.all([
             Destination.find({ adminId, ...filter })
-                .select("_id name images location.address location.pinCode status placeType ratings")
+                .select("_id slug name images location.address location.pinCode status placeType ratings")
                 .skip((page - 1) * limit)
                 .limit(limit)
                 .sort({ createdAt: -1 }),
@@ -124,19 +127,19 @@ export const getAllDestinations = async (req, res, next) => {
 
 export const deleteDestination = async (req, res, next) => {
     try {
-        const { id } = req.params;
+        const { slug } = req.params;
         const adminId = req.user?._id;
 
-        if (!id) {
-            return errorHandler(StatusCodes.BAD_REQUEST, "Destination ID is required", next);
+        if (!slug) {
+            return errorHandler(StatusCodes.BAD_REQUEST, "Destination slug is required", next);
         }
 
-        const destination = await Destination.findOne({ _id: id, adminId });
+        const destination = await Destination.findOne({ slug, adminId });
         if (!destination) {
             return errorHandler(StatusCodes.NOT_FOUND, "Destination not found or you do not have permission to delete it", next);
         }
 
-        await Destination.deleteOne({ _id: id, adminId });
+        await Destination.deleteOne({ slug, adminId });
 
         return sendSuccess(res, StatusCodes.OK, "Destination deleted successfully");
 
@@ -149,17 +152,17 @@ export const deleteDestination = async (req, res, next) => {
 
 /**
  * @desc Update destination
- * @route PUT /api/destinations/:id
+ * @route PUT /api/destinations/:slug
  * @access Admin
  */
 export const updateDestination = async (req, res, next) => {
     try {
-        const { id } = req.params;
+        const { slug } = req.params;
         const adminId = req.user?._id;
         let data = req.body;
 
-        if (!id) {
-            return errorHandler(StatusCodes.BAD_REQUEST, "Destination ID is required", next);
+        if (!slug) {
+            return errorHandler(StatusCodes.BAD_REQUEST, "Destination slug is required", next);
         }
 
         const validationResult = updateDestinationSchema.safeParse(data);
@@ -167,7 +170,7 @@ export const updateDestination = async (req, res, next) => {
             return errorHandler(StatusCodes.BAD_REQUEST, getValidationMessage(validationResult.error), next);
         }
 
-        const destination = await Destination.findOne({ adminId, _id: id });
+        const destination = await Destination.findOne({ adminId, slug });
         if (!destination) {
             return errorHandler(StatusCodes.NOT_FOUND, "Destination not found or you do not have permission to update it", next);
         }
@@ -175,7 +178,12 @@ export const updateDestination = async (req, res, next) => {
         let updateData = { ...validationResult.data };
 
         if (updateData.name) {
-            updateData.slug = generateSlug(updateData.name);
+            const newSlug = generateSlug(updateData.name);
+            const slugExists = await Destination.findOne({ slug: newSlug, _id: { $ne: destination._id } });
+            if (slugExists) {
+                return errorHandler(StatusCodes.CONFLICT, `A destination with the slug '${newSlug}' already exists. Please use a different name.`, next);
+            }
+            updateData.slug = newSlug;
         }
 
         if (updateData.aiMetadata) {
@@ -188,7 +196,7 @@ export const updateDestination = async (req, res, next) => {
         updateData.updatedAt = new Date();
 
         const updatedDestination = await Destination.findOneAndUpdate(
-            { _id: id, adminId },
+            { slug, adminId },
             updateData,
             { new: true, runValidators: true }
         );

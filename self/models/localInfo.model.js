@@ -51,6 +51,13 @@ const localInfoSchema = new mongoose.Schema({
     ref: "Admin"
   },
 
+  slug: {
+    type: String,
+    unique: true,
+    index: true,
+    sparse: true
+  },
+
   // 🌍 Basic Info
   language: [String], // Hindi, English, Local dialect
   currency: String,

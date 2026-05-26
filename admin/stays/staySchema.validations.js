@@ -399,9 +399,7 @@ export const staySchemaValidation = z.object({
 
   images: z.array(z.string({ required_error: "This field is required", invalid_type_error: "This field must be a string" }).url()).optional(),
 
-  // ==========================================
-  // STATUS
-  // ==========================================
+  isActive: z.boolean({ required_error: "This field is required", invalid_type_error: "This field must be a boolean" }).optional(),
 
-  isActive: z.boolean({ required_error: "This field is required", invalid_type_error: "This field must be a boolean" }).optional()
+  currentPrice: z.number().min(0, "Current price cannot be negative").default(0).optional()
 });

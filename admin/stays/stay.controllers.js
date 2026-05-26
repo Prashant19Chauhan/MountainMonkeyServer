@@ -1,5 +1,6 @@
 import StayModel from "../../self/models/stay.model.js";
 import { errorHandler, sendSuccess, StatusCodes } from "../../self/utility/error.utils.js";
+import { generateSlug } from "../../self/utility/slug.utils.js";
 import { staySchemaValidation } from "./staySchema.validations.js";
 
 // ── Helpers ────────────────────────────────────────────────────────────────
@@ -31,10 +32,18 @@ export const createStay = async (req, res, next) => {
             return errorHandler(StatusCodes.CONFLICT, "A stay with this name already exists in the selected city", next);
         }
 
-        const stay = new StayModel({ ...validate.data });
+        const slug = generateSlug(data.name);
+
+        // Check slug uniqueness
+        const slugExists = await StayModel.findOne({ slug });
+        if (slugExists) {
+            return errorHandler(StatusCodes.CONFLICT, `A stay with the slug '${slug}' already exists. Please use a different name.`, next);
+        }
+
+        const stay = new StayModel({ ...validate.data, slug });
         await stay.save();
 
-        return sendSuccess(res, StatusCodes.CREATED, "Stay created successfully");
+        return sendSuccess(res, StatusCodes.CREATED, "Stay created successfully", stay);
 
     } catch (error) {
         return errorHandler(StatusCodes.INTERNAL_SERVER_ERROR, error.message || "Failed to create stay", next);
@@ -45,11 +54,11 @@ export const createStay = async (req, res, next) => {
 
 export const updateStay = async (req, res, next) => {
     try {
-        const { id } = req.params;
+        const { slug } = req.params;
         const adminId = req.user?._id;
 
-        if (!id) {
-            return errorHandler(StatusCodes.BAD_REQUEST, "Stay ID is required", next);
+        if (!slug) {
+            return errorHandler(StatusCodes.BAD_REQUEST, "Stay slug is required", next);
         }
 
         const validate = staySchemaValidation.partial().safeParse(req.body);
@@ -62,7 +71,7 @@ export const updateStay = async (req, res, next) => {
             const existing = await StayModel.findOne({
                 name: req.body.name,
                 mainCity: req.body.mainCity,
-                _id: { $ne: id },
+                slug: { $ne: slug },
             });
 
             if (existing) {
@@ -70,16 +79,26 @@ export const updateStay = async (req, res, next) => {
             }
         }
 
-        const stay = await StayModel.findOne({ adminId, _id: id });
+        const stay = await StayModel.findOne({ adminId, slug });
 
         if (!stay) {
             return errorHandler(StatusCodes.NOT_FOUND, "Stay not found or you do not have permission to update it", next);
         }
 
+        // Regenerate slug if name changes
+        if (req.body.name && req.body.name !== stay.name) {
+            const newSlug = generateSlug(req.body.name);
+            const slugExists = await StayModel.findOne({ slug: newSlug, _id: { $ne: stay._id } });
+            if (slugExists) {
+                return errorHandler(StatusCodes.CONFLICT, `A stay with the slug '${newSlug}' already exists. Please use a different name.`, next);
+            }
+            validate.data.slug = newSlug;
+        }
+
         Object.assign(stay, validate.data);
         await stay.save();
 
-        return sendSuccess(res, StatusCodes.OK, "Stay updated successfully");
+        return sendSuccess(res, StatusCodes.OK, "Stay updated successfully", stay);
 
     } catch (error) {
         return errorHandler(StatusCodes.INTERNAL_SERVER_ERROR, error.message || "Failed to update stay", next);
@@ -90,14 +109,14 @@ export const updateStay = async (req, res, next) => {
 
 export const deleteStay = async (req, res, next) => {
     try {
-        const { id } = req.params;
+        const { slug } = req.params;
         const adminId = req.user?._id;
 
-        if (!id) {
-            return errorHandler(StatusCodes.BAD_REQUEST, "Stay ID is required", next);
+        if (!slug) {
+            return errorHandler(StatusCodes.BAD_REQUEST, "Stay slug is required", next);
         }
 
-        const deleted = await StayModel.findOneAndDelete({ adminId, _id: id });
+        const deleted = await StayModel.findOneAndDelete({ adminId, slug });
 
         if (!deleted) {
             return errorHandler(StatusCodes.NOT_FOUND, "Stay not found or you do not have permission to delete it", next);
@@ -114,14 +133,14 @@ export const deleteStay = async (req, res, next) => {
 
 export const getStay = async (req, res, next) => {
     try {
-        const { id } = req.params;
+        const { slug } = req.params;
         const adminId = req.user?._id;
 
-        if (!id) {
-            return errorHandler(StatusCodes.BAD_REQUEST, "Stay ID is required", next);
+        if (!slug) {
+            return errorHandler(StatusCodes.BAD_REQUEST, "Stay slug is required", next);
         }
 
-        const stay = await StayModel.findOne({ adminId, _id: id })
+        const stay = await StayModel.findOne({ adminId, slug })
             .select("-embedding")
             .populate("mainCity", "name")
             .populate("destinationId", "name");
@@ -184,5 +203,36 @@ export const getAllStays = async (req, res, next) => {
 
     } catch (error) {
         return errorHandler(StatusCodes.INTERNAL_SERVER_ERROR, error.message || "Failed to get stays", next);
+    }
+};
+
+export const updateStayCurrentPrice = async (req, res, next) => {
+    try {
+        const { slug } = req.params;
+        const { currentPrice } = req.body;
+        const adminId = req.user?._id;
+
+        if (!slug) {
+            return errorHandler(StatusCodes.BAD_REQUEST, "Stay slug is required", next);
+        }
+
+        if (currentPrice === undefined || isNaN(Number(currentPrice))) {
+            return errorHandler(StatusCodes.BAD_REQUEST, "Valid current price is required", next);
+        }
+
+        const stay = await StayModel.findOneAndUpdate(
+            { slug, adminId },
+            { currentPrice: Number(currentPrice) },
+            { new: true, runValidators: true }
+        );
+
+        if (!stay) {
+            return errorHandler(StatusCodes.NOT_FOUND, "Stay not found or you do not have permission to update it", next);
+        }
+
+        return sendSuccess(res, StatusCodes.OK, "Stay current price updated successfully", stay);
+
+    } catch (error) {
+        return errorHandler(StatusCodes.INTERNAL_SERVER_ERROR, error.message || "Failed to update current price", next);
     }
 };

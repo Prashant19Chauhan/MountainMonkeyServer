@@ -20,7 +20,7 @@ router.get("/explore", getExploreActivities);
 router.get("/advertisements", getActivityAdvertisements);
 
 
-router.get("/:activityId/details", getActivityDetails);
+router.get("/:activitySlug/details", getActivityDetails);
 router.get("/:destinationId/local-info", getDestinationLocalInfo);
 
 export default router;

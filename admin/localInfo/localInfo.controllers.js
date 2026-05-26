@@ -1,5 +1,7 @@
 import LocalInfo from "../../self/models/localInfo.model.js";
+import Destination from "../../self/models/destination.model.js";
 import { errorHandler, sendSuccess, StatusCodes } from "../../self/utility/error.utils.js";
+import { generateSlug } from "../../self/utility/slug.utils.js";
 import { createLocalInfoSchema } from "./localInfoSchema.validation.js";
 
 // ── Helpers ────────────────────────────────────────────────────────────────
@@ -33,7 +35,21 @@ export const createLocalInfo = async (req, res, next) => {
             return errorHandler(StatusCodes.CONFLICT, "Local info already exists for this destination", next);
         }
 
-        const localInfo = new LocalInfo({ ...data, adminId });
+        // Generate slug from the destination's name
+        const destination = await Destination.findById(data.destinationId).select("name slug");
+        if (!destination) {
+            return errorHandler(StatusCodes.NOT_FOUND, "Destination not found", next);
+        }
+
+        const slug = generateSlug(`local-info-${destination.slug || destination.name}`);
+
+        // Enforce slug uniqueness
+        const slugExists = await LocalInfo.findOne({ slug });
+        if (slugExists) {
+            return errorHandler(StatusCodes.CONFLICT, `Local info with slug '${slug}' already exists.`, next);
+        }
+
+        const localInfo = new LocalInfo({ ...data, adminId, slug });
         await localInfo.save();
 
         return sendSuccess(res, StatusCodes.CREATED, "Local info created successfully", localInfo);
@@ -86,14 +102,14 @@ export const getAllLocalInfo = async (req, res, next) => {
 
 export const getLocalInfo = async (req, res, next) => {
     try {
-        const { id } = req.params;
+        const { slug } = req.params;
         const adminId = req.user?._id;
 
-        if (!id) {
-            return errorHandler(StatusCodes.BAD_REQUEST, "Local info ID is required", next);
+        if (!slug) {
+            return errorHandler(StatusCodes.BAD_REQUEST, "Local info slug is required", next);
         }
 
-        const data = await LocalInfo.findOne({ _id: id, adminId }).populate("destinationId", "name");
+        const data = await LocalInfo.findOne({ slug, adminId }).populate("destinationId", "name");
 
         if (!data) {
             return errorHandler(StatusCodes.NOT_FOUND, "Local info not found", next);
@@ -110,11 +126,11 @@ export const getLocalInfo = async (req, res, next) => {
 
 export const updateLocalInfo = async (req, res, next) => {
     try {
-        const { id } = req.params;
+        const { slug } = req.params;
         const adminId = req.user?._id;
 
-        if (!id) {
-            return errorHandler(StatusCodes.BAD_REQUEST, "Local info ID is required", next);
+        if (!slug) {
+            return errorHandler(StatusCodes.BAD_REQUEST, "Local info slug is required", next);
         }
 
         const dataBody = { ...req.body, lastUpdated: new Date() };
@@ -125,7 +141,7 @@ export const updateLocalInfo = async (req, res, next) => {
         }
 
         const updated = await LocalInfo.findOneAndUpdate(
-            { _id: id, adminId },
+            { slug, adminId },
             { ...validation.data, lastUpdated: new Date() },
             { new: true, runValidators: true }
         );
@@ -145,14 +161,14 @@ export const updateLocalInfo = async (req, res, next) => {
 
 export const deleteLocalInfo = async (req, res, next) => {
     try {
-        const { id } = req.params;
+        const { slug } = req.params;
         const adminId = req.user?._id;
 
-        if (!id) {
-            return errorHandler(StatusCodes.BAD_REQUEST, "Local info ID is required", next);
+        if (!slug) {
+            return errorHandler(StatusCodes.BAD_REQUEST, "Local info slug is required", next);
         }
 
-        const deleted = await LocalInfo.findOneAndDelete({ _id: id, adminId });
+        const deleted = await LocalInfo.findOneAndDelete({ slug, adminId });
 
         if (!deleted) {
             return errorHandler(StatusCodes.NOT_FOUND, "Local info not found or you do not have permission to delete it", next);

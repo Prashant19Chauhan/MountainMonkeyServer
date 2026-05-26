@@ -187,5 +187,6 @@ export const createPackageSchema = z.object({
   /* ⚙️ System Fields */
   status: z.enum(["draft", "active", "inactive"]).default("draft"),
   isFeatured: z.boolean({ required_error: "This field is required", invalid_type_error: "This field must be a boolean" }).default(false),
+  currentPrice: z.number().min(0, "Current price cannot be negative").default(0).optional(),
 
 }).strict();

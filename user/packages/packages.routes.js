@@ -20,8 +20,8 @@ router.get("/popular", getPopularPackages);
 router.get("/advertisements", getPackageAdvertisements);
 
 
-router.get("/details/:packageId/destination-local-info/:destinationId", getPackageDestinationLocalInfo);
-router.get("/details/:packageId/similar-packages", getSimilarPackageList);
-router.get("/details/:packageId", getPackage);
+router.get("/details/:packageSlug/destination-local-info/:destinationId", getPackageDestinationLocalInfo);
+router.get("/details/:packageSlug/similar-packages", getSimilarPackageList);
+router.get("/details/:packageSlug", getPackage);
 
 export default router;

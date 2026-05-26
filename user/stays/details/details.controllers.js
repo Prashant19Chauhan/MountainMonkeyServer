@@ -4,9 +4,9 @@ import LocalInfoModel from "../../../self/models/localInfo.model.js";
 
 export const getStayDetails = async (req, res, next) => {
     try {
-        const { stayId } = req.params;
+        const { staySlug } = req.params;
 
-        const stayDetails = await StayModel.findById(stayId)
+        const stayDetails = await StayModel.findOne({ slug: staySlug })
             .select("-embedding -isActive -location.coordinates -location.mainCity -lastUpdated -createdAt -updatedAt -__v")
             .populate("metaDataId", "-_id -pageId -adminId -lastModified")
             .lean();

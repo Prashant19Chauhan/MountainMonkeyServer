@@ -42,6 +42,13 @@ const activitySchema = new mongoose.Schema({
 
   name: String,
 
+  slug: {
+    type: String,
+    unique: true,
+    index: true,
+    sparse: true
+  },
+
   adminId: {
     type: mongoose.Schema.Types.ObjectId,
     ref: "Admin"
@@ -156,6 +163,11 @@ const activitySchema = new mongoose.Schema({
   embedding: [Number],
 
   popularityScore: Number,
+
+  currentPrice: {
+    type: Number,
+    default: 0
+  },
 
   isActive: {
     type: Boolean,

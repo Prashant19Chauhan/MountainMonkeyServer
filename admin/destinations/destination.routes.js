@@ -8,10 +8,10 @@ router.post("/create", authMiddleware(["admin"], ["admin", "sub-admin"]), create
 
 router.get("/", authMiddleware(["admin"], ["admin", "sub-admin"]), getAllDestinations);
 
-router.get("/:id", authMiddleware(["admin"], ["admin", "sub-admin"]), getDestinationById);
+router.get("/:slug", authMiddleware(["admin"], ["admin", "sub-admin"]), getDestinationById);
 
-router.delete("/:id", authMiddleware(["admin"], ["admin", "sub-admin"]), deleteDestination);
+router.delete("/:slug", authMiddleware(["admin"], ["admin", "sub-admin"]), deleteDestination);
 
-router.put("/:id", authMiddleware(["admin"], ["admin", "sub-admin"]), updateDestination);
+router.put("/:slug", authMiddleware(["admin"], ["admin", "sub-admin"]), updateDestination);
 
 export default router;

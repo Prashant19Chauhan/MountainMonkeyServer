@@ -14,7 +14,7 @@ import {
 router.get("/", getAllStays);
 router.get("/advertisements", getStayAdvertisements);
 
-router.get("/details/:stayId", getStayDetails);
-router.get("/local-info/:stayId", getStayLocalInfo);
+router.get("/details/:staySlug", getStayDetails);
+router.get("/local-info/:destinationId", getStayLocalInfo);
 
 export default router;

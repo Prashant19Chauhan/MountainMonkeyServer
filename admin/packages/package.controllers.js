@@ -38,6 +38,12 @@ export const createPackage = async (req, res, next) => {
 
         const slug = generateSlug(validData.title);
 
+        // Enforce slug uniqueness
+        const slugExists = await PackageModel.findOne({ slug });
+        if (slugExists) {
+            return errorHandler(StatusCodes.CONFLICT, `A package with the slug '${slug}' already exists. Please use a different title.`, next);
+        }
+
         const newPackage = new PackageModel({ ...validData, adminId, slug });
         await newPackage.save();
 
@@ -52,12 +58,12 @@ export const createPackage = async (req, res, next) => {
 
 export const updatePackage = async (req, res, next) => {
     try {
-        const { id } = req.params;
+        const { slug } = req.params;
         const data = req.body;
         const adminId = req.user?._id;
 
-        if (!id) {
-            return errorHandler(StatusCodes.BAD_REQUEST, "Package ID is required", next);
+        if (!slug) {
+            return errorHandler(StatusCodes.BAD_REQUEST, "Package slug is required", next);
         }
 
         const validatedData = createPackageSchema.partial().safeParse(data);
@@ -67,21 +73,24 @@ export const updatePackage = async (req, res, next) => {
 
         const validData = validatedData.data;
 
-        if (validData.title) {
-            validData.slug = generateSlug(validData.title);
-        }
-
-        const updated = await PackageModel.findOneAndUpdate(
-            { _id: id, adminId },
-            { ...validData, updatedAt: new Date() },
-            { new: true, runValidators: true }
-        );
-
-        if (!updated) {
+        const existingPackage = await PackageModel.findOne({ slug, adminId });
+        if (!existingPackage) {
             return errorHandler(StatusCodes.NOT_FOUND, "Package not found or you do not have permission to update it", next);
         }
 
-        return sendSuccess(res, StatusCodes.OK, "Package updated successfully", updated);
+        if (validData.title && validData.title !== existingPackage.title) {
+            const newSlug = generateSlug(validData.title);
+            const slugExists = await PackageModel.findOne({ slug: newSlug, _id: { $ne: existingPackage._id } });
+            if (slugExists) {
+                return errorHandler(StatusCodes.CONFLICT, `A package with the slug '${newSlug}' already exists. Please use a different title.`, next);
+            }
+            validData.slug = newSlug;
+        }
+
+        Object.assign(existingPackage, { ...validData, updatedAt: new Date() });
+        await existingPackage.save();
+
+        return sendSuccess(res, StatusCodes.OK, "Package updated successfully", existingPackage);
 
     } catch (error) {
         return errorHandler(StatusCodes.INTERNAL_SERVER_ERROR, "Failed to update package", next);
@@ -144,13 +153,13 @@ export const getPackages = async (req, res, next) => {
 export const getPackage = async (req, res, next) => {
     try {
         const adminId = req.user?._id;
-        const { id } = req.params;
+        const { slug } = req.params;
 
-        if (!id) {
-            return errorHandler(StatusCodes.BAD_REQUEST, "Package ID is required", next);
+        if (!slug) {
+            return errorHandler(StatusCodes.BAD_REQUEST, "Package slug is required", next);
         }
 
-        const pkg = await PackageModel.findOne({ adminId, _id: id }).populate([
+        const pkg = await PackageModel.findOne({ adminId, slug }).populate([
             { path: "destination.id", select: "-aiMetadata.embedding" },
             { path: "accommodations.stayId", select: "-embedding" },
             { path: "activities.id", select: "-embedding" },
@@ -175,14 +184,14 @@ export const getPackage = async (req, res, next) => {
 
 export const deletePackage = async (req, res, next) => {
     try {
-        const { id } = req.params;
+        const { slug } = req.params;
         const adminId = req.user?._id;
 
-        if (!id) {
-            return errorHandler(StatusCodes.BAD_REQUEST, "Package ID is required", next);
+        if (!slug) {
+            return errorHandler(StatusCodes.BAD_REQUEST, "Package slug is required", next);
         }
 
-        const deleted = await PackageModel.findOneAndDelete({ adminId, _id: id });
+        const deleted = await PackageModel.findOneAndDelete({ adminId, slug });
 
         if (!deleted) {
             return errorHandler(StatusCodes.NOT_FOUND, "Package not found or you do not have permission to delete it", next);
@@ -192,5 +201,36 @@ export const deletePackage = async (req, res, next) => {
 
     } catch (error) {
         return errorHandler(StatusCodes.INTERNAL_SERVER_ERROR, "Failed to delete package", next);
+    }
+};
+
+export const updatePackageCurrentPrice = async (req, res, next) => {
+    try {
+        const { slug } = req.params;
+        const { currentPrice } = req.body;
+        const adminId = req.user?._id;
+
+        if (!slug) {
+            return errorHandler(StatusCodes.BAD_REQUEST, "Package slug is required", next);
+        }
+
+        if (currentPrice === undefined || isNaN(Number(currentPrice))) {
+            return errorHandler(StatusCodes.BAD_REQUEST, "Valid current price is required", next);
+        }
+
+        const pkg = await PackageModel.findOneAndUpdate(
+            { slug, adminId },
+            { currentPrice: Number(currentPrice) },
+            { new: true, runValidators: true }
+        );
+
+        if (!pkg) {
+            return errorHandler(StatusCodes.NOT_FOUND, "Package not found or you do not have permission to update it", next);
+        }
+
+        return sendSuccess(res, StatusCodes.OK, "Package current price updated successfully", pkg);
+
+    } catch (error) {
+        return errorHandler(StatusCodes.INTERNAL_SERVER_ERROR, error.message || "Failed to update current price", next);
     }
 };

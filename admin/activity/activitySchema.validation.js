@@ -332,6 +332,12 @@ export const activityValidationSchema = z.object({
 
   isActive: z
     .boolean()
-    .default(true)
+    .default(true),
+
+  currentPrice: z
+    .number()
+    .min(0, "Current price cannot be negative")
+    .default(0)
+    .optional()
 
 });

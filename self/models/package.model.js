@@ -21,7 +21,12 @@ const tourPackageSchema = new mongoose.Schema({
     required: true
   },
 
-  slug: String, // SEO / URL friendly
+  slug: {
+    type: String,
+    unique: true,
+    index: true,
+    sparse: true // allow existing docs without slug
+  }, // SEO / URL friendly
 
   description: {
     type: String,
@@ -224,6 +229,11 @@ const tourPackageSchema = new mongoose.Schema({
   isFeatured: {
     type: Boolean,
     default: false
+  },
+
+  currentPrice: {
+    type: Number,
+    default: 0
   },
 
   createdAt: {
