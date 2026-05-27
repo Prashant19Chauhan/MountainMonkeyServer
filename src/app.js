@@ -27,6 +27,7 @@ const app = express()
 
     app.get('/', (req, res) => {
         res.send('Server is running!')
+        console.log("app file ---------------------------------------")
     })
 
 
