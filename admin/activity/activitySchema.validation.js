@@ -21,12 +21,15 @@ const optionalObjectId = z
 ========================================= */
 
 const categoryEnum = z.enum([
-  "trekking",
-  "paragliding",
-  "museum",
-  "temple",
-  "street_food",
-  "market"
+  "trekking", "paragliding", "museum", "temple", "street_food", "market",
+  "hiking", "camping", "wildlife_safari", "river_rafting", "scuba_diving",
+  "historical_site", "monument", "heritage_walk", "shopping", "spa_wellness",
+  "winery_tour", "cooking_class", "photography", "stargazing", "waterfall_trek",
+  "beach_outing", "cultural_show", "bungee_jumping", "ziplining", "rock_climbing",
+  "caving", "sightseeing", "food_tour", "nature_walk", "boating", "snow_sports",
+  "adventure_park", "theme_park", "cable_car", "snorkeling", "kayaking", "surfing",
+  "canyoning", "cycling_tour", "yoga_retreat", "meditation", "art_workshop",
+  "historical_palace", "monastery", "botanical_garden"
 ]);
 
 const difficultyEnum = z.enum([
@@ -42,28 +45,22 @@ const riskLevelEnum = z.enum([
 ]);
 
 const tagsEnum = z.enum([
-  "budget",
-  "luxury",
-  "family",
-  "couple",
-  "solo",
-  "adventure",
-  "relaxing"
+  "budget", "luxury", "family", "couple", "solo", "adventure", "relaxing",
+  "eco_friendly", "cultural", "spiritual", "nature", "wildlife", "foodie",
+  "instaworthy", "offbeat", "nightlife", "educational", "pet_friendly",
+  "accessible", "seasonal", "thrilling", "scenic", "romantic", "historic",
+  "local_experience", "indoor", "outdoor", "guided"
 ]);
 
 const recommendedForEnum = z.enum([
-  "solo",
-  "couple",
-  "family",
-  "friends",
-  "adventure_seekers"
+  "solo", "couple", "family", "friends", "adventure_seekers", "nature_lovers",
+  "history_buffs", "foodies", "senior_citizens", "backpackers", "wellness_seekers",
+  "corporate_groups", "photographers", "families_with_kids", "student_groups",
+  "pet_owners", "thrill_seekers"
 ]);
 
 const timeSlotEnum = z.enum([
-  "morning",
-  "afternoon",
-  "evening",
-  "night"
+  "early_morning", "morning", "afternoon", "evening", "night", "overnight"
 ]);
 
 /* =========================================
@@ -84,16 +81,16 @@ const pricingSchema = z.object({
     .boolean()
     .default(false)
 })
-.refine((data) => {
-  if (data.isFree) {
-    return data.price === 0;
-  }
+  .refine((data) => {
+    if (data.isFree) {
+      return data.price === 0;
+    }
 
-  return true;
-}, {
-  message: "Free activities must have price 0",
-  path: ["price"]
-});
+    return true;
+  }, {
+    message: "Free activities must have price 0",
+    path: ["price"]
+  });
 
 const timingSchema = z.object({
   openingTime: z.string({ required_error: "This field is required", invalid_type_error: "This field must be a string" }).optional(),

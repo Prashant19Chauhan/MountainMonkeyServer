@@ -89,14 +89,10 @@ export const createPackageSchema = z.object({
   /* 🏷️ Categories */
   categories: z.array(
     z.enum([
-      "honeymoon",
-      "adventure",
-      "family",
-      "solo",
-      "luxury",
-      "budget",
-      "spiritual",
-      "wildlife",
+      "honeymoon", "adventure", "family", "solo", "luxury", "budget", "spiritual",
+      "wildlife", "wellness", "roadtrip", "trekking", "beach", "cultural",
+      "weekend_getaway", "nature", "backpacking", "eco_tourism", "festival",
+      "photography", "cruise", "winter_special", "summer_special", "monsoon_special"
     ])
   ).min(1, "At least one category required"),
 
@@ -129,13 +125,13 @@ export const createPackageSchema = z.object({
   /* 🚗 Transport */
   transport: z.object({
     included: z.boolean({ required_error: "This field is required", invalid_type_error: "This field must be a boolean" }),
-    modes: z.array(z.string({ required_error: "This field is required", invalid_type_error: "This field must be a string" }).min(1)).min(1, "At least one transport mode required"),
+    modes: z.array(z.enum(["flight", "cab", "bus", "train", "ferry", "walk", "jeep", "motorbike", "bicycle", "shuttle", "cruiser"])).min(1, "At least one transport mode required"),
   }),
 
   /* 🍽️ Meals */
   meals: z.object({
     included: z.boolean({ required_error: "This field is required", invalid_type_error: "This field must be a boolean" }),
-    plan: z.array(z.string({ required_error: "This field is required", invalid_type_error: "This field must be a string" }).min(1)).optional(),
+    plan: z.array(z.enum(["breakfast", "lunch", "dinner", "all_inclusive", "self_catering", "half_board", "full_board", "tea_snacks"])).optional(),
   }),
 
   /* 📅 Availability */
@@ -171,11 +167,23 @@ export const createPackageSchema = z.object({
 
   /* 🤖 AI Metadata */
   aiMetadata: z.object({
-    tags: z.array(z.string({ required_error: "This field is required", invalid_type_error: "This field must be a string" })).optional(),
-    mood: z.array(z.string({ required_error: "This field is required", invalid_type_error: "This field must be a string" })).optional(),
-    suitableFor: z.array(z.string({ required_error: "This field is required", invalid_type_error: "This field must be a string" })).optional(),
+    tags: z.array(z.enum([
+      "snow", "nature", "romantic", "peaceful", "trekking", "heritage",
+      "photography", "camping", "boating", "high_altitude", "offbeat", "luxury",
+      "backpacker", "wildlife", "street_food", "shopping", "adventure", "cultural"
+    ])).optional(),
+    mood: z.array(z.enum([
+      "relaxing", "adventurous", "spiritual", "thrilling", "romantic", "educational",
+      "rejuvenating", "peaceful", "vibrant", "mystical"
+    ])).optional(),
+    suitableFor: z.array(z.enum([
+      "couple", "family", "friends", "solo", "kids", "seniors", "corporate",
+      "students", "nature_lovers", "backpackers"
+    ])).optional(),
     difficultyLevel: z.enum(["easy", "moderate", "hard"]),
-    bestSeason: z.array(z.string({ required_error: "This field is required", invalid_type_error: "This field must be a string" })).optional(),
+    bestSeason: z.array(z.enum([
+      "winter", "summer", "monsoon", "spring", "autumn", "all_year", "shoulder_season"
+    ])).optional(),
     highlights: z.array(z.string({ required_error: "This field is required", invalid_type_error: "This field must be a string" })).optional(),
     languagesSupported: z.array(z.string({ required_error: "This field is required", invalid_type_error: "This field must be a string" })).optional(),
     popularityScore: z.number({ required_error: "This field is required", invalid_type_error: "This field must be a number" }).min(0).max(100).default(0),

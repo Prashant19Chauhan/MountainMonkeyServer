@@ -63,14 +63,21 @@ const activitySchema = new mongoose.Schema({
     type: String,
   },
 
-  category: [
-    "trekking",
-    "paragliding",
-    "museum",
-    "temple",
-    "street_food",
-    "market"
-  ],
+  category: {
+    type: [String],
+    enum: [
+      "trekking", "paragliding", "museum", "temple", "street_food", "market",
+      "hiking", "camping", "wildlife_safari", "river_rafting", "scuba_diving",
+      "historical_site", "monument", "heritage_walk", "shopping", "spa_wellness",
+      "winery_tour", "cooking_class", "photography", "stargazing", "waterfall_trek",
+      "beach_outing", "cultural_show", "bungee_jumping", "ziplining", "rock_climbing",
+      "caving", "sightseeing", "food_tour", "nature_walk", "boating", "snow_sports",
+      "adventure_park", "theme_park", "cable_car", "snorkeling", "kayaking", "surfing",
+      "canyoning", "cycling_tour", "yoga_retreat", "meditation", "art_workshop",
+      "historical_palace", "monastery", "botanical_garden"
+    ],
+    default: []
+  },
 
   shortDescription: String,
   longDescription: String,
@@ -125,15 +132,17 @@ const activitySchema = new mongoose.Schema({
 
   images: [String],
 
-  tags: [
-    "budget",
-    "luxury",
-    "family",
-    "couple",
-    "solo",
-    "adventure",
-    "relaxing"
-  ],
+  tags: {
+    type: [String],
+    enum: [
+      "budget", "luxury", "family", "couple", "solo", "adventure", "relaxing",
+      "eco_friendly", "cultural", "spiritual", "nature", "wildlife", "foodie",
+      "instaworthy", "offbeat", "nightlife", "educational", "pet_friendly",
+      "accessible", "seasonal", "thrilling", "scenic", "romantic", "historic",
+      "local_experience", "indoor", "outdoor", "guided"
+    ],
+    default: []
+  },
 
   // 🔥 AI Optimization Fields
   aiScore: {
@@ -143,20 +152,24 @@ const activitySchema = new mongoose.Schema({
     uniqueness: Number
   },
 
-  recommendedFor: [
-    "solo",
-    "couple",
-    "family",
-    "friends",
-    "adventure_seekers"
-  ],
+  recommendedFor: {
+    type: [String],
+    enum: [
+      "solo", "couple", "family", "friends", "adventure_seekers", "nature_lovers",
+      "history_buffs", "foodies", "senior_citizens", "backpackers", "wellness_seekers",
+      "corporate_groups", "photographers", "families_with_kids", "student_groups",
+      "pet_owners", "thrill_seekers"
+    ],
+    default: []
+  },
 
-  timeSlotPreference: [
-    "morning",
-    "afternoon",
-    "evening",
-    "night"
-  ],
+  timeSlotPreference: {
+    type: [String],
+    enum: [
+      "early_morning", "morning", "afternoon", "evening", "night", "overnight"
+    ],
+    default: []
+  },
 
   aiSummary: String,
 

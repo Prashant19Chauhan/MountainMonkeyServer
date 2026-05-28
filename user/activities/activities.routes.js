@@ -5,7 +5,8 @@ import {
     getFeaturedActivities,
     getPopularActivities,
     getExploreActivities,
-    getActivityAdvertisements
+    getActivityAdvertisements,
+    getAllActivities
 } from "./activities.controllers.js";
 
 import {
@@ -14,6 +15,7 @@ import {
 } from "./details/details.controllers.js";
 
 
+router.get("/all", getAllActivities);
 router.get("/featured", getFeaturedActivities);
 router.get("/popular", getPopularActivities);
 router.get("/explore", getExploreActivities);

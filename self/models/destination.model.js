@@ -54,9 +54,23 @@ const destinationSchema = new mongoose.Schema({
 
   placeType: {
     type: String,
+    enum: [
+      "City", "Town", "Village", "National Park", "Historical Site", "Beach",
+      "Mountain Peak", "Valley"
+    ]
   },
 
-  categories: [String], // ["romantic", "adventure", "family", "budget"]
+  categories: {
+    type: [String],
+    enum: [
+      "Adventure", "Pilgrimage", "Nature", "Luxury", "Trekking", "Honeymoon",
+      "Historical", "Beach", "Offbeat", "Wildlife", "Cultural", "Spiritual",
+      "Wellness", "Foodie", "Road_Trip", "Weekend_Getaway", "Hill_Station",
+      "Desert", "Rural", "Urban", "Backpacking", "Heritage", "Snow_Destination",
+      "Riverside"
+    ],
+    default: []
+  },
 
   nearbyDestinations: [
     {
@@ -87,19 +101,42 @@ const destinationSchema = new mongoose.Schema({
   aiMetadata: {
 
     tags: {
-      type: [String]
+      type: [String],
+      enum: [
+        "Alpine", "Tropical", "Urban", "Desert", "Ancient", "Spiritual", "Forest",
+        "Snowy", "Coastal", "Rural", "Volcanic", "High_Altitude", "Lush_Green",
+        "Valley", "Riverside", "Lake", "Historical_Hub", "Wildlife_Sanctuary"
+      ],
+      default: []
     },
 
     mood: {
-      type: [String]
+      type: [String],
+      enum: [
+        "Relaxing", "Adventure", "Soulful", "Nature", "Luxury", "Vibrant",
+        "Ethereal", "Mystical", "Peaceful", "Romantic", "Cosmopolitan", "Tranquil",
+        "Exciting", "Charming", "Rejuvenating"
+      ],
+      default: []
     },
 
     suitableFor: {
-      type: [String]
+      type: [String],
+      enum: [
+        "Solo", "Couples", "Families", "Groups", "Digital Nomads", "Backpackers",
+        "Seniors", "Adventure Seekers", "Nature Lovers", "History Buffs", "Wellness Seekers"
+      ],
+      default: []
     },
 
     travelStyle: {
-      type: [String]
+      type: [String],
+      enum: [
+        "Backpacking", "Fast-paced", "Slow Travel", "Eco-focus", "Luxury",
+        "Road Trip", "Cultural Immersion", "Adventure", "Wellness", "Bleisure",
+        "Weekend Escapes"
+      ],
+      default: []
     },
 
     highlights: [

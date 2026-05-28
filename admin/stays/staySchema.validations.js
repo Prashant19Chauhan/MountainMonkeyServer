@@ -124,11 +124,11 @@ export const staySchemaValidation = z.object({
         message: "Maximum price cannot be negative"
       })
   })
-  .refine((data) => data.max >= data.min, {
-    message:
-      "Maximum price must be greater than minimum price",
-    path: ["max"]
-  }),
+    .refine((data) => data.max >= data.min, {
+      message:
+        "Maximum price must be greater than minimum price",
+      path: ["max"]
+    }),
 
   // ==========================================
   // ROOMS
@@ -161,11 +161,11 @@ export const staySchemaValidation = z.object({
                 "Maximum room price cannot be negative"
             })
         })
-        .refine((data) => data.max >= data.min, {
-          message:
-            "Maximum room price must be greater than minimum room price",
-          path: ["max"]
-        }),
+          .refine((data) => data.max >= data.min, {
+            message:
+              "Maximum room price must be greater than minimum room price",
+            path: ["max"]
+          }),
 
         capacity: z
           .number({
@@ -193,15 +193,15 @@ export const staySchemaValidation = z.object({
                 "Available rooms cannot be negative"
             })
         })
-        .refine(
-          (data) =>
-            data.availableRooms <= data.totalRooms,
-          {
-            message:
-              "Available rooms cannot exceed total rooms",
-            path: ["availableRooms"]
-          }
-        ),
+          .refine(
+            (data) =>
+              data.availableRooms <= data.totalRooms,
+            {
+              message:
+                "Available rooms cannot exceed total rooms",
+              path: ["availableRooms"]
+            }
+          ),
 
         roomImages: z.array(z.string({ required_error: "This field is required", invalid_type_error: "This field must be a string" }).url()).optional()
       })
@@ -214,7 +214,13 @@ export const staySchemaValidation = z.object({
   // AMENITIES
   // ==========================================
 
-  amenities: z.array(z.string({ required_error: "This field is required", invalid_type_error: "This field must be a string" })),
+  amenities: z.array(z.enum([
+    "wifi", "pool", "parking", "gym", "spa", "restaurant", "bar", "room_service",
+    "ac", "tv", "heater", "laundry", "pet_friendly", "wheelchair_accessible",
+    "bonfire", "trekking_guide", "kids_play_area", "campfire", "breakfast_included",
+    "kitchenette", "balcony", "lake_view", "mountain_view", "garden", "game_room",
+    "conference_hall", "doctor_on_call"
+  ])),
 
   // ==========================================
   // POLICIES
@@ -351,11 +357,21 @@ export const staySchemaValidation = z.object({
   // ==========================================
 
   aiMetaData: z.object({
-    tags: z.array(z.string({ required_error: "This field is required", invalid_type_error: "This field must be a string" })),
+    tags: z.array(z.enum([
+      "luxury", "mountain_view", "family_friendly", "riverfront", "eco_lodge",
+      "heritage", "cozy", "budget", "romantic", "offbeat", "forest_view",
+      "lakeview", "backpacker_hub", "boutique", "secluded", "pet_friendly"
+    ])),
 
-    suitableFor: z.array(z.string({ required_error: "This field is required", invalid_type_error: "This field must be a string" })),
+    suitableFor: z.array(z.enum([
+      "couples", "families", "business_travelers", "solo_travelers", "groups",
+      "backpackers", "wellness_seekers", "honeymooners", "digital_nomads", "pet_owners"
+    ])),
 
-    stayType: z.array(z.string({ required_error: "This field is required", invalid_type_error: "This field must be a string" }))
+    stayType: z.array(z.enum([
+      "boutique", "heritage", "resort", "glamping", "homestay", "hostel",
+      "cottage", "villa", "hotel", "camp", "cabin", "treehouse", "guest_house"
+    ]))
   }),
 
   // ==========================================

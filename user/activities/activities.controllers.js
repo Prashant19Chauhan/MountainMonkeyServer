@@ -48,6 +48,21 @@ export const getExploreActivities = async (req, res, next) => {
     }
 };
 
+// Fetch all activities (for client-side category filtering in dynamic category panels)
+export const getAllActivities = async (req, res, next) => {
+    try {
+        const activities = await ActivityModel.find({ isActive: true })
+            .select("name slug destinationId images pricing ratings tags category shortDescription popularityScore")
+            .populate("destinationId", "name location.address")
+            .sort({ popularityScore: -1, "ratings.average": -1 })
+            .limit(60);
+
+        return sendSuccess(res, StatusCodes.OK, "All activities fetched successfully", activities);
+    } catch (error) {
+        return errorHandler(StatusCodes.INTERNAL_SERVER_ERROR, error.message || "Failed to fetch all activities", next);
+    }
+};
+
 // Fetch advertisements for activities page
 export const getActivityAdvertisements = async (req, res, next) => {
     try {

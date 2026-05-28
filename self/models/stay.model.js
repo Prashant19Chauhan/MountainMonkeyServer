@@ -41,7 +41,7 @@ const staySchema = new mongoose.Schema({
     unique: true,
     sparse: true
   },
-  
+
   adminId: mongoose.Schema.Types.ObjectId,
 
   name: String,
@@ -62,9 +62,9 @@ const staySchema = new mongoose.Schema({
     enum: ["hotel", "hostel", "homestay", "resort", "villa"]
   },
 
-  starRating:{
-    type:Number,
-    enum:[1,2,3,4,5]
+  starRating: {
+    type: Number,
+    enum: [1, 2, 3, 4, 5]
   },
 
   destinationId: {
@@ -80,7 +80,7 @@ const staySchema = new mongoose.Schema({
       lng: Number
     },
 
-    altitude:Number,
+    altitude: Number,
   },
 
   mainCity: {
@@ -95,7 +95,17 @@ const staySchema = new mongoose.Schema({
 
   rooms: [roomSchema],
 
-  amenities: [String], // pool, parking, wifi, gym
+  amenities: {
+    type: [String],
+    enum: [
+      "wifi", "pool", "parking", "gym", "spa", "restaurant", "bar", "room_service",
+      "ac", "tv", "heater", "laundry", "pet_friendly", "wheelchair_accessible",
+      "bonfire", "trekking_guide", "kids_play_area", "campfire", "breakfast_included",
+      "kitchenette", "balcony", "lake_view", "mountain_view", "garden", "game_room",
+      "conference_hall", "doctor_on_call"
+    ],
+    default: []
+  },
 
   policies: [
     {
@@ -134,17 +144,39 @@ const staySchema = new mongoose.Schema({
     sanitizationProtocols: Number
   },
 
-  cancellationPolicy:[
+  cancellationPolicy: [
     {
-      policyName:String,
-      policyDescription:String,
+      policyName: String,
+      policyDescription: String,
     }
   ],
 
   aiMetaData: {
-    tags: [],
-    suitableFor: [],
-    stayType: [],
+    tags: {
+      type: [String],
+      enum: [
+        "luxury", "mountain_view", "family_friendly", "riverfront", "eco_lodge",
+        "heritage", "cozy", "budget", "romantic", "offbeat", "forest_view",
+        "lakeview", "backpacker_hub", "boutique", "secluded", "pet_friendly"
+      ],
+      default: []
+    },
+    suitableFor: {
+      type: [String],
+      enum: [
+        "couples", "families", "business_travelers", "solo_travelers", "groups",
+        "backpackers", "wellness_seekers", "honeymooners", "digital_nomads", "pet_owners"
+      ],
+      default: []
+    },
+    stayType: {
+      type: [String],
+      enum: [
+        "boutique", "heritage", "resort", "glamping", "homestay", "hostel",
+        "cottage", "villa", "hotel", "camp", "cabin", "treehouse", "guest_house"
+      ],
+      default: []
+    },
   },
 
   // 🔥 AI specific fields

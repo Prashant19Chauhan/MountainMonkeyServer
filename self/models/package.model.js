@@ -72,14 +72,10 @@ const tourPackageSchema = new mongoose.Schema({
   categories: [{
     type: String,
     enum: [
-      "honeymoon",
-      "adventure",
-      "family",
-      "solo",
-      "luxury",
-      "budget",
-      "spiritual",
-      "wildlife"
+      "honeymoon", "adventure", "family", "solo", "luxury", "budget", "spiritual",
+      "wildlife", "wellness", "roadtrip", "trekking", "beach", "cultural",
+      "weekend_getaway", "nature", "backpacking", "eco_tourism", "festival",
+      "photography", "cruise", "winter_special", "summer_special", "monsoon_special"
     ]
   }],
 
@@ -97,28 +93,36 @@ const tourPackageSchema = new mongoose.Schema({
 
   // 🏨 Accommodation
   accommodations: [
-  {
-    stayId: {
-      type: mongoose.Schema.Types.ObjectId,
-      ref: "Stay"
-    },
+    {
+      stayId: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "Stay"
+      },
 
-    priceRangeForPackage: {
-      min: Number,
-      max: Number
-    },
-  }
+      priceRangeForPackage: {
+        min: Number,
+        max: Number
+      },
+    }
   ],
   // 🚗 Transport
   transport: {
     included: Boolean,
-    modes: [String] // ["flight", "cab", "bus"]
+    modes: {
+      type: [String],
+      enum: ["flight", "cab", "bus", "train", "ferry", "walk", "jeep", "motorbike", "bicycle", "shuttle", "cruiser"],
+      default: []
+    }
   },
 
   // 🍽️ Meals
   meals: {
     included: Boolean,
-    plan: [String] // ["breakfast", "dinner"]
+    plan: {
+      type: [String],
+      enum: ["breakfast", "lunch", "dinner", "all_inclusive", "self_catering", "half_board", "full_board", "tea_snacks"],
+      default: []
+    }
   },
 
   // 📅 Availability
@@ -170,24 +174,48 @@ const tourPackageSchema = new mongoose.Schema({
   // 🤖 AI METADATA (🔥 MOST IMPORTANT)
   aiMetadata: {
 
-    tags: [String],  
-    // ["romantic", "snow", "nature", "peaceful"]
+    tags: {
+      type: [String],
+      enum: [
+        "snow", "nature", "romantic", "peaceful", "trekking", "heritage",
+        "photography", "camping", "boating", "high_altitude", "offbeat", "luxury",
+        "backpacker", "wildlife", "street_food", "shopping", "adventure", "cultural"
+      ],
+      default: []
+    },
 
-    mood: [String],  
-    // ["relaxing", "adventurous", "spiritual"]
+    mood: {
+      type: [String],
+      enum: [
+        "relaxing", "adventurous", "spiritual", "thrilling", "romantic", "educational",
+        "rejuvenating", "peaceful", "vibrant", "mystical"
+      ],
+      default: []
+    },
 
-    suitableFor: [String],  
-    // ["couple", "family", "friends", "solo"]
+    suitableFor: {
+      type: [String],
+      enum: [
+        "couple", "family", "friends", "solo", "kids", "seniors", "corporate",
+        "students", "nature_lovers", "backpackers"
+      ],
+      default: []
+    },
 
     difficultyLevel: {
       type: String,
       enum: ["easy", "moderate", "hard"]
     },
 
-    bestSeason: [String],  
-    // ["winter", "summer", "monsoon"]
+    bestSeason: {
+      type: [String],
+      enum: [
+        "winter", "summer", "monsoon", "spring", "autumn", "all_year", "shoulder_season"
+      ],
+      default: []
+    },
 
-    highlights: [String],  
+    highlights: [String],
     // ["Snowfall", "River rafting", "Scenic views"]
 
     languagesSupported: [String],

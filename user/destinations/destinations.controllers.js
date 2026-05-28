@@ -6,9 +6,9 @@ import { errorHandler, sendSuccess, StatusCodes } from "../../self/utility/error
 export const getAllDestinations = async (req, res, next) => {
     try {
         const destinations = await DestinationModel.find({ status: "Active" })
-            .select("name slug images shortDescription")
+            .select("name slug images shortDescription location categories ratings")
             .sort({ createdAt: -1 })
-            .limit(15);
+            .limit(30);
 
         return sendSuccess(res, StatusCodes.OK, "Destinations fetched successfully", destinations);
     } catch (error) {

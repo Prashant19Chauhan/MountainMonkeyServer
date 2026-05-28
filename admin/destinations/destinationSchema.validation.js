@@ -1,6 +1,43 @@
 import {z} from "zod";
+import mongoose from "mongoose";
 
 const optionalObjectId = z.string({ invalid_type_error: "Object ID must be a string" }).refine((val) => {try {new mongoose.Types.ObjectId(val); return true;} catch (e) {return false;}}, "Invalid Object ID").optional();
+
+const placeTypeEnum = z.enum([
+  "City", "Town", "Village", "National Park", "Historical Site", "Beach",
+  "Mountain Peak", "Valley"
+]);
+
+const categoriesEnum = z.enum([
+  "Adventure", "Pilgrimage", "Nature", "Luxury", "Trekking", "Honeymoon",
+  "Historical", "Beach", "Offbeat", "Wildlife", "Cultural", "Spiritual",
+  "Wellness", "Foodie", "Road_Trip", "Weekend_Getaway", "Hill_Station",
+  "Desert", "Rural", "Urban", "Backpacking", "Heritage", "Snow_Destination",
+  "Riverside"
+]);
+
+const tagsEnum = z.enum([
+  "Alpine", "Tropical", "Urban", "Desert", "Ancient", "Spiritual", "Forest",
+  "Snowy", "Coastal", "Rural", "Volcanic", "High_Altitude", "Lush_Green",
+  "Valley", "Riverside", "Lake", "Historical_Hub", "Wildlife_Sanctuary"
+]);
+
+const moodEnum = z.enum([
+  "Relaxing", "Adventure", "Soulful", "Nature", "Luxury", "Vibrant",
+  "Ethereal", "Mystical", "Peaceful", "Romantic", "Cosmopolitan", "Tranquil",
+  "Exciting", "Charming", "Rejuvenating"
+]);
+
+const suitableForEnum = z.enum([
+  "Solo", "Couples", "Families", "Groups", "Digital Nomads", "Backpackers",
+  "Seniors", "Adventure Seekers", "Nature Lovers", "History Buffs", "Wellness Seekers"
+]);
+
+const travelStyleEnum = z.enum([
+  "Backpacking", "Fast-paced", "Slow Travel", "Eco-focus", "Luxury",
+  "Road Trip", "Cultural Immersion", "Adventure", "Wellness", "Bleisure",
+  "Weekend Escapes"
+]);
 
 export const createDestinationSchema = z.object({
     name: z.string({ required_error: "Destination name is required", invalid_type_error: "Destination name must be a string" }).min(1, "Please provide destination name"),
@@ -15,9 +52,8 @@ export const createDestinationSchema = z.object({
         }, { required_error: "Coordinates are required" }),
         altitude: z.number({ required_error: "Altitude is required", invalid_type_error: "Altitude must be a number" })
     }, { required_error: "Location is required" }),
-    mainCity: z.string({ required_error: "Main city ID is required", invalid_type_error: "Main city ID must be a string" }).min(1, "Please provide main city id"),
-    placeType: z.string({ required_error: "Place type is required", invalid_type_error: "Place type must be a string" }).min(1, "Please provide place type"),
-    categories: z.array(z.string({ invalid_type_error: "Category must be a string" }), { required_error: "Categories are required", invalid_type_error: "Categories must be an array" }).min(1, "Please provide at least one category"),
+    placeType: placeTypeEnum,
+    categories: z.array(categoriesEnum).min(1, "Please provide at least one category"),
     nearbyDestinations: z.array(z.object({
         destinationId: z.string({ required_error: "Destination ID is required" }).min(1, "Please provide destination id"),
         distance: z.number({ required_error: "Distance is required" }).positive(),
@@ -32,10 +68,10 @@ export const createDestinationSchema = z.object({
     images: z.array(z.string({ invalid_type_error: "Image URL must be a string" }).url()).optional(),
     videos: z.array(z.string({ invalid_type_error: "Video URL must be a string" }).url()).optional(),
     aiMetadata: z.object({
-        tags: z.array(z.string()).min(1, "Please provide at least one tag"),
-        mood: z.array(z.string()).min(1, "Please provide at least one mood"),
-        suitableFor: z.array(z.string()).min(1, "Please provide at least one suitable for"),
-        travelStyle: z.array(z.string()).min(1, "Please provide at least one travel style"),
+        tags: z.array(tagsEnum).min(1, "Please provide at least one tag"),
+        mood: z.array(moodEnum).min(1, "Please provide at least one mood"),
+        suitableFor: z.array(suitableForEnum).min(1, "Please provide at least one suitable for"),
+        travelStyle: z.array(travelStyleEnum).min(1, "Please provide at least one travel style"),
         highlights: z.array(z.object({
             title: z.string({ required_error: "Highlight title is required" }).min(1, "Please provide highlight title"),
             description: z.string({ required_error: "Highlight description is required" }).min(1, "Please provide highlight description")
@@ -62,8 +98,8 @@ export const updateDestinationSchema = z.object({
         altitude: z.number({ required_error: "Altitude is required" })
     }).optional(),
     mainCity: z.string({ invalid_type_error: "Main city ID must be a string" }).min(1, "Please provide main city id").optional(),
-    placeType: z.string({ invalid_type_error: "Place type must be a string" }).min(1, "Please provide place type").optional(),
-    categories: z.array(z.string()).min(1, "Please provide at least one category").optional(),
+    placeType: placeTypeEnum.optional(),
+    categories: z.array(categoriesEnum).min(1, "Please provide at least one category").optional(),
     nearbyDestinations: z.array(z.object({
         destinationId: z.string({ required_error: "Destination ID is required" }).min(1, "Please provide destination id"),
         distance: z.number({ required_error: "Distance is required" }).positive(),
@@ -78,10 +114,10 @@ export const updateDestinationSchema = z.object({
     images: z.array(z.string()).optional(),
     videos: z.array(z.string()).optional(),
     aiMetadata: z.object({
-        tags: z.array(z.string()).min(1, "Please provide at least one tag").optional(),
-        mood: z.array(z.string()).min(1, "Please provide at least one mood").optional(),
-        suitableFor: z.array(z.string()).min(1, "Please provide at least one suitable for").optional(),
-        travelStyle: z.array(z.string()).min(1, "Please provide at least one travel style").optional(),
+        tags: z.array(tagsEnum).min(1, "Please provide at least one tag").optional(),
+        mood: z.array(moodEnum).min(1, "Please provide at least one mood").optional(),
+        suitableFor: z.array(suitableForEnum).min(1, "Please provide at least one suitable for").optional(),
+        travelStyle: z.array(travelStyleEnum).min(1, "Please provide at least one travel style").optional(),
         highlights: z.array(z.object({
             title: z.string({ required_error: "Highlight title is required" }).min(1, "Please provide highlight title"),
             description: z.string({ required_error: "Highlight description is required" }).min(1, "Please provide highlight description")
