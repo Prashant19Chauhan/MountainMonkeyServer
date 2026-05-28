@@ -6,7 +6,14 @@ export const getActivityDetails = async (req, res, next) => {
     try {
         const { activitySlug } = req.params;
 
-        const activityDetails = await ActivitiesModel.findOne({ slug: activitySlug })
+        let query = {};
+        if (activitySlug.match(/^[0-9a-fA-F]{24}$/)) {
+            query = { $or: [{ _id: activitySlug }, { slug: activitySlug }] };
+        } else {
+            query = { slug: activitySlug };
+        }
+
+        const activityDetails = await ActivitiesModel.findOne(query)
             .select("-isActive -embedding -aiSummary -location.coordinates -location.mainCity")
             .populate("metaDataId", "-_id -pageId -adminId -lastModified")
             .lean();

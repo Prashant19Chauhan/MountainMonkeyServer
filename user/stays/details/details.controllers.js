@@ -6,7 +6,14 @@ export const getStayDetails = async (req, res, next) => {
     try {
         const { staySlug } = req.params;
 
-        const stayDetails = await StayModel.findOne({ slug: staySlug })
+        let query = {};
+        if (staySlug.match(/^[0-9a-fA-F]{24}$/)) {
+            query = { $or: [{ _id: staySlug }, { slug: staySlug }] };
+        } else {
+            query = { slug: staySlug };
+        }
+
+        const stayDetails = await StayModel.findOne(query)
             .select("-embedding -isActive -location.coordinates -location.mainCity -lastUpdated -createdAt -updatedAt -__v")
             .populate("metaDataId", "-_id -pageId -adminId -lastModified")
             .lean();

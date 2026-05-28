@@ -6,7 +6,7 @@ import { errorHandler, sendSuccess, StatusCodes } from "../../self/utility/error
 export const getFeaturedActivities = async (req, res, next) => {
     try {
         const activities = await ActivityModel.find({ isActive: true })
-            .select("name destinationId images pricing ratings timing tags category shortDescription")
+            .select("name slug destinationId images pricing ratings timing tags category shortDescription")
             .populate("destinationId", "name location.address")
             .sort({ popularityScore: -1, "ratings.average": -1 })
             .limit(3);
@@ -21,7 +21,7 @@ export const getFeaturedActivities = async (req, res, next) => {
 export const getPopularActivities = async (req, res, next) => {
     try {
         const activities = await ActivityModel.find({ isActive: true })
-            .select("name destinationId images pricing ratings timing tags category shortDescription")
+            .select("name slug destinationId images pricing ratings timing tags category shortDescription")
             .populate("destinationId", "name location.address")
             .sort({ popularityScore: -1, "ratings.average": -1 })
             .skip(3)
@@ -37,7 +37,7 @@ export const getPopularActivities = async (req, res, next) => {
 export const getExploreActivities = async (req, res, next) => {
     try {
         const activities = await ActivityModel.find({ isActive: true })
-            .select("name destinationId images pricing ratings timing tags category shortDescription longDescription")
+            .select("name slug destinationId images pricing ratings timing tags category shortDescription longDescription")
             .populate("destinationId", "name location.address")
             .sort({ createdAt: -1 })
             .limit(10);

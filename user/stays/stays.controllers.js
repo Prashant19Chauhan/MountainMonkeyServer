@@ -7,7 +7,7 @@ export const getAllStays = async (req, res, next) => {
     try {
         console.log("request hit ")
         const stays = await StayModel.find({ isActive: true })
-            .select("name destinationId location.address priceRange ratings images popularityScore aiScore type aiMetaData")
+            .select("name slug destinationId location.address priceRange ratings images popularityScore aiScore type aiMetaData")
             .populate("destinationId", "name location.address")
             .sort({ popularityScore: -1, "ratings.average": -1 })
             .limit(12);
