@@ -78,3 +78,16 @@ export const getPackageAdvertisements = async (req, res, next) => {
         return errorHandler(StatusCodes.INTERNAL_SERVER_ERROR, error.message || "Failed to fetch advertisements", next);
     }
 };
+
+// Fetch all active packages
+export const getAllPackages = async (req, res, next) => {
+    try {
+        const packages = await PackageModel.find({ status: "active" })
+            .select("title slug description shortDescription images pricing ratings duration transport destination categories aiMetadata")
+            .populate("destination.id", "name location.address");
+
+        return sendSuccess(res, StatusCodes.OK, "All packages fetched successfully", packages);
+    } catch (error) {
+        return errorHandler(StatusCodes.INTERNAL_SERVER_ERROR, error.message || "Failed to fetch all packages", next);
+    }
+};

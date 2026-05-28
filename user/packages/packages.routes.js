@@ -5,7 +5,8 @@ import {
     getFeaturedPackages,
     getTropicalPackages,
     getPopularPackages,
-    getPackageAdvertisements
+    getPackageAdvertisements,
+    getAllPackages
 } from "./packages.controllers.js";
 
 import {
@@ -14,6 +15,7 @@ import {
     getPackageDestinationLocalInfo
 } from "./details/details.controllers.js";
 
+router.get("/", getAllPackages);
 router.get("/featured", getFeaturedPackages);
 router.get("/tropical", getTropicalPackages);
 router.get("/popular", getPopularPackages);
