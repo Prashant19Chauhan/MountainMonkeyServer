@@ -49,7 +49,7 @@ export const homePopularActivities = async (req, res, next) => {
         const popularActivities = await ActivityModel.find({ isActive: true })
             .limit(10)
             .sort({ popularityScore: -1 })
-            .select("name shortDescription images pricing ratings location.address");
+            .select("name slug shortDescription images pricing ratings location.address");
 
         return sendSuccess(res, StatusCodes.OK, "Popular activities fetched successfully", popularActivities);
     } catch (error) {
@@ -62,7 +62,7 @@ export const homeUniqueStays = async (req, res, next) => {
         const uniqueStays = await StayModel.find({ isActive: true })
             .limit(10)
             .sort({ popularityScore: -1 })
-            .select("name shortDescription images priceRange ratings starRating location.address");
+            .select("name slug shortDescription images priceRange ratings starRating location.address");
 
         return sendSuccess(res, StatusCodes.OK, "Unique stays fetched successfully", uniqueStays);
     } catch (error) {
