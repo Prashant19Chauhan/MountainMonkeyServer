@@ -209,30 +209,36 @@ export const getAllStays = async (req, res, next) => {
 export const updateStayCurrentPrice = async (req, res, next) => {
     try {
         const { slug } = req.params;
-        const { currentPrice } = req.body;
+        const { roomPrices } = req.body; // Array of { typeOfRoom, currentPrice }
         const adminId = req.user?._id;
 
         if (!slug) {
             return errorHandler(StatusCodes.BAD_REQUEST, "Stay slug is required", next);
         }
 
-        if (currentPrice === undefined || isNaN(Number(currentPrice))) {
-            return errorHandler(StatusCodes.BAD_REQUEST, "Valid current price is required", next);
+        if (!roomPrices || !Array.isArray(roomPrices)) {
+            return errorHandler(StatusCodes.BAD_REQUEST, "Valid roomPrices array is required", next);
         }
 
-        const stay = await StayModel.findOneAndUpdate(
-            { slug, adminId },
-            { currentPrice: Number(currentPrice) },
-            { new: true, runValidators: true }
-        );
+        const stay = await StayModel.findOne({ slug, adminId });
 
         if (!stay) {
             return errorHandler(StatusCodes.NOT_FOUND, "Stay not found or you do not have permission to update it", next);
         }
 
-        return sendSuccess(res, StatusCodes.OK, "Stay current price updated successfully", stay);
+        // Update each room's currentPrice
+        roomPrices.forEach(({ typeOfRoom, currentPrice }) => {
+            const room = stay.rooms.find(r => r.typeOfRoom === typeOfRoom);
+            if (room) {
+                room.currentPrice = Number(currentPrice);
+            }
+        });
+
+        await stay.save();
+
+        return sendSuccess(res, StatusCodes.OK, "Stay rooms current prices updated successfully", stay);
 
     } catch (error) {
-        return errorHandler(StatusCodes.INTERNAL_SERVER_ERROR, error.message || "Failed to update current price", next);
+        return errorHandler(StatusCodes.INTERNAL_SERVER_ERROR, error.message || "Failed to update rooms current prices", next);
     }
 };

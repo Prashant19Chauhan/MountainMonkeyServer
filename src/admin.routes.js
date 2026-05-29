@@ -16,12 +16,14 @@ import adminAdvertisementRouter from "../admin/advertisement/advertisement.route
 import adminTravelerStoryRouter from "../admin/travelerStory/travelerStory.routes.js"
 import adminTestimonialRouter from "../admin/testimonial/testimonial.routes.js"
 import metaDataRouter from "../admin/metaData/metaData.routes.js"
+import adminEnquiryRouter from "../admin/enquiry/enquiry.routes.js"
 
 const baseApis="/admin"
 
 const adminRouter = express.Router();
 
     adminRouter.use(`${baseApis}/meta-data`, metaDataRouter);
+    adminRouter.use(`${baseApis}/enquiry`, adminEnquiryRouter);
 
     adminRouter.use(`${baseApis}/testimonial`, adminTestimonialRouter);
 

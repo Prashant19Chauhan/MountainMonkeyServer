@@ -11,12 +11,14 @@ import userDestinationsRouter from "../user/destinations/destinations.routes.js"
 import userPackagesRouter from "../user/packages/packages.routes.js"
 import userActivitiesRouter from "../user/activities/activities.routes.js"
 import userStaysRouter from "../user/stays/stays.routes.js"
+import userEnquiryRouter from "../user/enquiry/enquiry.routes.js"
 
 const baseApi = '/user'
 
 const userRouter = express.Router();
 
     userRouter.use(`${baseApi}/auth`, authRouter);
+    userRouter.use(`${baseApi}/enquiry`, userEnquiryRouter);
 
     userRouter.use(`${baseApi}/profile`, profileRouter);
 

@@ -17,7 +17,12 @@ const roomSchema = new mongoose.Schema({
     availableRooms: Number
   },
 
-  roomImages: [String]
+  roomImages: [String],
+
+  currentPrice: {
+    type: Number,
+    default: 0
+  }
 }, { _id: false });
 
 
@@ -192,11 +197,6 @@ const staySchema = new mongoose.Schema({
   popularityScore: Number,
 
   images: [String],
-
-  currentPrice: {
-    type: Number,
-    default: 0
-  },
 
   isActive: {
     type: Boolean,

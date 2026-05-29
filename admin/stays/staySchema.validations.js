@@ -203,7 +203,9 @@ export const staySchemaValidation = z.object({
             }
           ),
 
-        roomImages: z.array(z.string({ required_error: "This field is required", invalid_type_error: "This field must be a string" }).url()).optional()
+        roomImages: z.array(z.string({ required_error: "This field is required", invalid_type_error: "This field must be a string" }).url()).optional(),
+
+        currentPrice: z.number().min(0, "Current room price cannot be negative").default(0).optional()
       })
     )
     .min(1, {
@@ -415,7 +417,5 @@ export const staySchemaValidation = z.object({
 
   images: z.array(z.string({ required_error: "This field is required", invalid_type_error: "This field must be a string" }).url()).optional(),
 
-  isActive: z.boolean({ required_error: "This field is required", invalid_type_error: "This field must be a boolean" }).optional(),
-
-  currentPrice: z.number().min(0, "Current price cannot be negative").default(0).optional()
+  isActive: z.boolean({ required_error: "This field is required", invalid_type_error: "This field must be a boolean" }).optional()
 });
