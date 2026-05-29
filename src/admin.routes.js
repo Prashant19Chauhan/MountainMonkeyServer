@@ -12,6 +12,10 @@ import localInfoRouter from "../admin/localInfo/localInfo.routes.js"
 import stayRouter from "../admin/stays/stay.routes.js"
 import themeMetaDataRouter from "../admin/themeMetaData/theme.routes.js"
 import AdminHomeRouter from "../admin/content/home/home.routes.js"
+import AdminDestinationsPageRouter from "../admin/content/destinationsPage/destinationsPage.routes.js"
+import AdminPackagesPageRouter from "../admin/content/packagesPage/packagesPage.routes.js"
+import AdminStaysPageRouter from "../admin/content/staysPage/staysPage.routes.js"
+import AdminActivitiesPageRouter from "../admin/content/activitiesPage/activitiesPage.routes.js"
 import adminAdvertisementRouter from "../admin/advertisement/advertisement.routes.js"
 import adminTravelerStoryRouter from "../admin/travelerStory/travelerStory.routes.js"
 import adminTestimonialRouter from "../admin/testimonial/testimonial.routes.js"
@@ -32,6 +36,10 @@ const adminRouter = express.Router();
     adminRouter.use(`${baseApis}/advertisement`, adminAdvertisementRouter);
 
     adminRouter.use(`${baseApis}/content/home`, AdminHomeRouter);
+    adminRouter.use(`${baseApis}/content/destinations-page`, AdminDestinationsPageRouter);
+    adminRouter.use(`${baseApis}/content/packages-page`, AdminPackagesPageRouter);
+    adminRouter.use(`${baseApis}/content/stays-page`, AdminStaysPageRouter);
+    adminRouter.use(`${baseApis}/content/activities-page`, AdminActivitiesPageRouter);
 
     adminRouter.use(`${baseApis}/theme-meta-data`, themeMetaDataRouter);
 

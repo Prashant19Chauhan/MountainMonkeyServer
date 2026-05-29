@@ -1,5 +1,6 @@
 import StayModel from "../../self/models/stay.model.js";
 import Advertisement from "../../self/models/advertisement.model.js";
+import { StaysPageSections } from "../../self/models/staysPage.model.js";
 import { errorHandler, sendSuccess, StatusCodes } from "../../self/utility/error.utils.js";
 
 // Fetch all stays (for main grid)
@@ -32,5 +33,15 @@ export const getStayAdvertisements = async (req, res, next) => {
         return sendSuccess(res, StatusCodes.OK, "Advertisements fetched successfully", advertisements);
     } catch (error) {
         return errorHandler(StatusCodes.INTERNAL_SERVER_ERROR, error.message || "Failed to fetch advertisements", next);
+    }
+};
+
+// Fetch stays page custom content sections for UserApp
+export const getStaysPageSections = async (req, res, next) => {
+    try {
+        const sectionsContent = await StaysPageSections.findOne();
+        return sendSuccess(res, StatusCodes.OK, "Stays page sections fetched successfully", sectionsContent || null);
+    } catch (error) {
+        return errorHandler(StatusCodes.INTERNAL_SERVER_ERROR, error.message || "Failed to fetch stays page sections", next);
     }
 };

@@ -1,20 +1,5 @@
 import mongoose from "mongoose";
 
-
-const homeHeroSectionSchema = new mongoose.Schema({
-    title: String,
-    tagline: String,
-    searchBarPrompt: String,
-    metaTitle: String,
-    metaDescription: String,
-    categories: [String],
-    mood: { 
-        type: String, 
-        required: true,
-        default: 'default'
-    },
-}, {timestamps: true})
-
 const customLinkSchema = new mongoose.Schema({
     text: { type: String, required: true },
     url: { type: String, required: true }
@@ -33,9 +18,8 @@ const customSectionSchema = new mongoose.Schema({
     faq: [customFaqSchema]
 });
 
-const homePageSectionsSchema = new mongoose.Schema({
-    heroSection: [homeHeroSectionSchema],
+const destinationsPageSectionsSchema = new mongoose.Schema({
     customSections: [customSectionSchema],
 }, {timestamps: true})
 
-export const HomePageSections = mongoose.model("HomePageSections", homePageSectionsSchema)
+export const DestinationsPageSections = mongoose.model("DestinationsPageSections", destinationsPageSectionsSchema);

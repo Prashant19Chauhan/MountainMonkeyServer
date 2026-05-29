@@ -6,7 +6,9 @@ import {
     getTrendingDestinations,
     getTropicalDestinations,
     getHistoryDestinations,
-    getDestinationAdvertisements
+    getDestinationAdvertisements,
+    getDestinationsPageSections,
+    getDestinationDetailSectionsUser
 } from "./destinations.controllers.js";
 
 import {
@@ -24,6 +26,8 @@ router.get("/trending", getTrendingDestinations);
 router.get("/tropical", getTropicalDestinations);
 router.get("/history", getHistoryDestinations);
 router.get("/advertisements", getDestinationAdvertisements);
+router.get("/page/sections", getDestinationsPageSections);
+router.get("/detail-sections/:destinationSlug", getDestinationDetailSectionsUser);
 
 
 //destination details APIs --------------------------------------------------

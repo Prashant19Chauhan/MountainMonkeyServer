@@ -1,5 +1,6 @@
 import PackageModel from "../../self/models/package.model.js";
 import Advertisement from "../../self/models/advertisement.model.js";
+import { PackagesPageSections } from "../../self/models/packagesPage.model.js";
 import { errorHandler, sendSuccess, StatusCodes } from "../../self/utility/error.utils.js";
 
 // Fetch featured/top packages (with fallback to top-rated if none featured)
@@ -89,5 +90,14 @@ export const getAllPackages = async (req, res, next) => {
         return sendSuccess(res, StatusCodes.OK, "All packages fetched successfully", packages);
     } catch (error) {
         return errorHandler(StatusCodes.INTERNAL_SERVER_ERROR, error.message || "Failed to fetch all packages", next);
+    }
+};
+
+export const getPackagesPageSections = async (req, res, next) => {
+    try {
+        const sectionsContent = await PackagesPageSections.findOne();
+        return sendSuccess(res, StatusCodes.OK, "Packages page sections fetched successfully", sectionsContent || null);
+    } catch (error) {
+        return errorHandler(StatusCodes.INTERNAL_SERVER_ERROR, error.message || "Failed to fetch packages page sections", next);
     }
 };

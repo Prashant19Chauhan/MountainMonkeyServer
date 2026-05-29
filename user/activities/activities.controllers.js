@@ -1,5 +1,6 @@
 import ActivityModel from "../../self/models/activity.model.js";
 import Advertisement from "../../self/models/advertisement.model.js";
+import { ActivitiesPageSections } from "../../self/models/activitiesPage.model.js";
 import { errorHandler, sendSuccess, StatusCodes } from "../../self/utility/error.utils.js";
 
 // Fetch featured/top activities (for the top Bento grid section)
@@ -75,5 +76,15 @@ export const getActivityAdvertisements = async (req, res, next) => {
         return sendSuccess(res, StatusCodes.OK, "Advertisements fetched successfully", advertisements);
     } catch (error) {
         return errorHandler(StatusCodes.INTERNAL_SERVER_ERROR, error.message || "Failed to fetch advertisements", next);
+    }
+};
+
+// Fetch activities page custom content sections for UserApp
+export const getActivitiesPageSections = async (req, res, next) => {
+    try {
+        const sectionsContent = await ActivitiesPageSections.findOne();
+        return sendSuccess(res, StatusCodes.OK, "Activities page sections fetched successfully", sectionsContent || null);
+    } catch (error) {
+        return errorHandler(StatusCodes.INTERNAL_SERVER_ERROR, error.message || "Failed to fetch activities page sections", next);
     }
 };

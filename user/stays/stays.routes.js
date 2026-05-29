@@ -3,7 +3,8 @@ const router = express.Router();
 
 import {
     getAllStays,
-    getStayAdvertisements
+    getStayAdvertisements,
+    getStaysPageSections
 } from "./stays.controllers.js";
 
 import {
@@ -13,6 +14,7 @@ import {
 
 router.get("/", getAllStays);
 router.get("/advertisements", getStayAdvertisements);
+router.get("/page/sections", getStaysPageSections);
 
 router.get("/details/:staySlug", getStayDetails);
 router.get("/local-info/:destinationId", getStayLocalInfo);

@@ -1,6 +1,6 @@
 import { HomePageSections } from "../../../self/models/home.model.js";
 import { errorHandler, sendSuccess, StatusCodes } from "../../../self/utility/error.utils.js";
-import { createAndUpdateHomeHeroSectionSchema } from "./homeSchema.validations.js";
+import { createAndUpdateHomeHeroSectionSchema, updateHomeCustomSectionsSchema } from "./homeSchema.validations.js";
 
 // ── Helpers ────────────────────────────────────────────────────────────────
 
@@ -63,5 +63,33 @@ export const getHomeHeroSection = async (req, res, next) => {
 
     } catch (error) {
         return errorHandler(StatusCodes.INTERNAL_SERVER_ERROR, error.message || "Failed to fetch hero section", next);
+    }
+};
+
+// ── UPDATE CUSTOM SECTIONS ─────────────────────────────────────────────────
+
+export const updateHomeCustomSections = async (req, res, next) => {
+    try {
+        const validate = updateHomeCustomSectionsSchema.safeParse(req.body);
+        if (!validate.success) {
+            return errorHandler(StatusCodes.BAD_REQUEST, getValidationMessage(validate.error), next);
+        }
+
+        const { customSections } = validate.data;
+
+        let homeData = await HomePageSections.findOne();
+
+        if (!homeData) {
+            homeData = new HomePageSections({ heroSection: [], customSections });
+            await homeData.save();
+        } else {
+            homeData.customSections = customSections;
+            await homeData.save();
+        }
+
+        return sendSuccess(res, StatusCodes.OK, "Custom sections updated successfully", homeData);
+
+    } catch (error) {
+        return errorHandler(StatusCodes.INTERNAL_SERVER_ERROR, error.message || "Failed to update custom sections", next);
     }
 };
