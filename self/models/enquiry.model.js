@@ -24,7 +24,7 @@ const enquirySchema = new mongoose.Schema({
   },
   enquiryType: {
     type: String,
-    enum: ["stay", "package", "activity"],
+    enum: ["stay", "package", "activity", "destination"],
     required: true
   },
   itemId: {

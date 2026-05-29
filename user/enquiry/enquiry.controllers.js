@@ -2,6 +2,7 @@ import EnquiryModel from "../../self/models/enquiry.model.js";
 import StayModel from "../../self/models/stay.model.js";
 import PackagesModel from "../../self/models/package.model.js";
 import ActivityModel from "../../self/models/activity.model.js";
+import DestinationModel from "../../self/models/destination.model.js";
 import { errorHandler, sendSuccess, StatusCodes } from "../../self/utility/error.utils.js";
 
 export const createEnquiry = async (req, res, next) => {
@@ -33,6 +34,8 @@ export const createEnquiry = async (req, res, next) => {
             product = await PackagesModel.findById(itemId);
         } else if (enquiryType === "activity") {
             product = await ActivityModel.findById(itemId);
+        } else if (enquiryType === "destination") {
+            product = await DestinationModel.findById(itemId);
         }
 
         if (!product) {
