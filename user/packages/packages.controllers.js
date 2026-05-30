@@ -1,6 +1,7 @@
 import PackageModel from "../../self/models/package.model.js";
 import Advertisement from "../../self/models/advertisement.model.js";
 import { PackagesPageSections } from "../../self/models/packagesPage.model.js";
+import { PackageDetailSections } from "../../self/models/packageDetailSections.model.js";
 import { errorHandler, sendSuccess, StatusCodes } from "../../self/utility/error.utils.js";
 
 // Fetch featured/top packages (with fallback to top-rated if none featured)
@@ -99,5 +100,20 @@ export const getPackagesPageSections = async (req, res, next) => {
         return sendSuccess(res, StatusCodes.OK, "Packages page sections fetched successfully", sectionsContent || null);
     } catch (error) {
         return errorHandler(StatusCodes.INTERNAL_SERVER_ERROR, error.message || "Failed to fetch packages page sections", next);
+    }
+};
+
+// Fetch per-package custom content sections for UserApp (by slug)
+export const getPackageDetailSectionsUser = async (req, res, next) => {
+    try {
+        const { packageSlug } = req.params;
+        const pkg = await PackageModel.findOne({ slug: packageSlug }).select("_id");
+        if (!pkg) {
+            return errorHandler(StatusCodes.NOT_FOUND, "Package not found", next);
+        }
+        const sections = await PackageDetailSections.findOne({ packageId: pkg._id });
+        return sendSuccess(res, StatusCodes.OK, "Package detail sections fetched successfully", sections || null);
+    } catch (error) {
+        return errorHandler(StatusCodes.INTERNAL_SERVER_ERROR, error.message || "Failed to fetch package detail sections", next);
     }
 };

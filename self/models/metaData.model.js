@@ -9,7 +9,7 @@ const seoSchema = new mongoose.Schema({
   },
 
   pageId: {
-    type: mongoose.Schema.Types.ObjectId,
+    type: String,
     required: true
   },
   

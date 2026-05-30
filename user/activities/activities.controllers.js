@@ -1,6 +1,7 @@
 import ActivityModel from "../../self/models/activity.model.js";
 import Advertisement from "../../self/models/advertisement.model.js";
 import { ActivitiesPageSections } from "../../self/models/activitiesPage.model.js";
+import { ActivityDetailSections } from "../../self/models/activityDetailSections.model.js";
 import { errorHandler, sendSuccess, StatusCodes } from "../../self/utility/error.utils.js";
 
 // Fetch featured/top activities (for the top Bento grid section)
@@ -86,5 +87,20 @@ export const getActivitiesPageSections = async (req, res, next) => {
         return sendSuccess(res, StatusCodes.OK, "Activities page sections fetched successfully", sectionsContent || null);
     } catch (error) {
         return errorHandler(StatusCodes.INTERNAL_SERVER_ERROR, error.message || "Failed to fetch activities page sections", next);
+    }
+};
+
+// Fetch per-activity custom content sections for UserApp (by slug)
+export const getActivityDetailSectionsUser = async (req, res, next) => {
+    try {
+        const { activitySlug } = req.params;
+        const activity = await ActivityModel.findOne({ slug: activitySlug }).select("_id");
+        if (!activity) {
+            return errorHandler(StatusCodes.NOT_FOUND, "Activity not found", next);
+        }
+        const sections = await ActivityDetailSections.findOne({ activityId: activity._id });
+        return sendSuccess(res, StatusCodes.OK, "Activity detail sections fetched successfully", sections || null);
+    } catch (error) {
+        return errorHandler(StatusCodes.INTERNAL_SERVER_ERROR, error.message || "Failed to fetch activity detail sections", next);
     }
 };

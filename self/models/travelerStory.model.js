@@ -6,12 +6,29 @@ const travelerStorySchema = new mongoose.Schema({
         required: true,
         trim: true,
     },
+    shortDescription: {
+        type: String,
+        trim: true,
+        default: "",
+    },
     content: {
         type: String,
         required: true,
     },
+    tripExperience: {
+        type: String, // Overall trip experience summary
+        default: "",
+    },
+    storyAboutTrip: {
+        type: String, // Detailed personal narrative about the trip
+        default: "",
+    },
+    coverImage: {
+        type: String, // Main cover image URL
+        default: "",
+    },
     images: [{
-        type: String, // URLs
+        type: String, // Additional image URLs
     }],
     author: {
         type: mongoose.Schema.Types.ObjectId,
@@ -20,7 +37,22 @@ const travelerStorySchema = new mongoose.Schema({
     },
     location: {
         type: String, // e.g. "Manali, India"
+        default: "",
     },
+    destination: {
+        type: String, // Freetext destination name
+        default: "",
+    },
+    tripDate: {
+        type: Date, // When the trip happened
+    },
+    tripDuration: {
+        type: String, // e.g. "5 days 4 nights"
+        default: "",
+    },
+    tags: [{
+        type: String, // e.g. ["trekking", "himalaya", "adventure"]
+    }],
     rating: {
         type: Number,
         min: 1,
@@ -34,8 +66,22 @@ const travelerStorySchema = new mongoose.Schema({
     },
     rejectionReason: {
         type: String,
+    },
+    slug: {
+        type: String,
+        trim: true,
+        lowercase: true,
+        default: "",
+    },
+    metaData: {
+        title: { type: String, default: "" },
+        description: { type: String, default: "" },
+        keywords: { type: String, default: "" },
     }
 }, { timestamps: true });
+
+// Index slug for faster lookup
+travelerStorySchema.index({ slug: 1 });
 
 const TravelerStory = mongoose.model("TravelerStory", travelerStorySchema);
 

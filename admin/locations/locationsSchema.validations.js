@@ -5,6 +5,7 @@ export const createLocationSchema = z.object({
         required_error: "Location name is required",
         invalid_type_error: "Location name must be a string"
     }).min(1, "Location name is required"),
+    slug: z.string().optional(),
     country: z.string({
         required_error: "Country is required",
         invalid_type_error: "Country must be a string"
@@ -47,6 +48,7 @@ export const deleteLocationSchema = z.string({
 
 export const updateLocationSchema = z.object({
   name: z.string({ invalid_type_error: "Location name must be a string" }).min(1, "Location name is required").optional(),
+  slug: z.string().optional(),
   state: z.string({ invalid_type_error: "State must be a string" }).min(1, "State is required").optional(),
   city: z.string({ invalid_type_error: "City must be a string" }).min(1, "City is required").optional(),
   address: z.string({ invalid_type_error: "Address must be a string" }).min(1, "Address is required").optional(),

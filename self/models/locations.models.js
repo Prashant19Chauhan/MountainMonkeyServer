@@ -1,4 +1,5 @@
 import mongoose from "mongoose";
+import { generateSlug } from "../utility/slug.utils.js";
 
 const locationSchema = new mongoose.Schema({
 
@@ -12,6 +13,12 @@ const locationSchema = new mongoose.Schema({
   name: {
     type: String,
     required: true
+  },
+  slug: {
+    type: String,
+    unique: true,
+    index: true,
+    sparse: true
   },
   country: String,
   state: String,
@@ -37,6 +44,14 @@ const locationSchema = new mongoose.Schema({
     enum: ["Active", "Draft", "Inactive"],
     default: "Active",
   }
+});
+
+// Auto-generate slug on save
+locationSchema.pre("save", function(next) {
+  if (this.name && (!this.slug || this.isModified("name"))) {
+    this.slug = generateSlug(this.name);
+  }
+  next();
 });
 
 // 🔥 IMPORTANT (enables geospatial queries)

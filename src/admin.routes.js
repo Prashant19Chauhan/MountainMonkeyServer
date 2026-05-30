@@ -16,18 +16,27 @@ import AdminDestinationsPageRouter from "../admin/content/destinationsPage/desti
 import AdminPackagesPageRouter from "../admin/content/packagesPage/packagesPage.routes.js"
 import AdminStaysPageRouter from "../admin/content/staysPage/staysPage.routes.js"
 import AdminActivitiesPageRouter from "../admin/content/activitiesPage/activitiesPage.routes.js"
+import AdminAboutPageRouter from "../admin/content/aboutPage/aboutPage.routes.js"
+import AdminFaqPageRouter from "../admin/content/faqPage/faqPage.routes.js"
+import AdminTermsPageRouter from "../admin/content/termsPage/termsPage.routes.js"
+import AdminPrivacyPageRouter from "../admin/content/privacyPage/privacyPage.routes.js"
+import AdminCitiesPageRouter from "../admin/content/citiesPage/citiesPage.routes.js"
 import adminAdvertisementRouter from "../admin/advertisement/advertisement.routes.js"
 import adminTravelerStoryRouter from "../admin/travelerStory/travelerStory.routes.js"
 import adminTestimonialRouter from "../admin/testimonial/testimonial.routes.js"
 import metaDataRouter from "../admin/metaData/metaData.routes.js"
 import adminEnquiryRouter from "../admin/enquiry/enquiry.routes.js"
+import adminContactRouter from "../admin/contact/contact.routes.js"
+import adminBlogsRouter from "../admin/blogs/blogs.routes.js";
 
 const baseApis="/admin"
 
 const adminRouter = express.Router();
 
+    adminRouter.use(`${baseApis}/blogs`, adminBlogsRouter);
     adminRouter.use(`${baseApis}/meta-data`, metaDataRouter);
     adminRouter.use(`${baseApis}/enquiry`, adminEnquiryRouter);
+    adminRouter.use(`${baseApis}/contact`, adminContactRouter);
 
     adminRouter.use(`${baseApis}/testimonial`, adminTestimonialRouter);
 
@@ -40,6 +49,11 @@ const adminRouter = express.Router();
     adminRouter.use(`${baseApis}/content/packages-page`, AdminPackagesPageRouter);
     adminRouter.use(`${baseApis}/content/stays-page`, AdminStaysPageRouter);
     adminRouter.use(`${baseApis}/content/activities-page`, AdminActivitiesPageRouter);
+    adminRouter.use(`${baseApis}/content/about-page`, AdminAboutPageRouter);
+    adminRouter.use(`${baseApis}/content/faq-page`, AdminFaqPageRouter);
+    adminRouter.use(`${baseApis}/content/terms-page`, AdminTermsPageRouter);
+    adminRouter.use(`${baseApis}/content/privacy-page`, AdminPrivacyPageRouter);
+    adminRouter.use(`${baseApis}/content/cities-page`, AdminCitiesPageRouter);
 
     adminRouter.use(`${baseApis}/theme-meta-data`, themeMetaDataRouter);
 

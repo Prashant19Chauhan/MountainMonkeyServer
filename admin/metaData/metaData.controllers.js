@@ -8,6 +8,7 @@ import StayModel from "../../self/models/stay.model.js";
 import RouteModel from "../../self/models/travelRoute.model.js";
 import {Location} from "../../self/models/locations.models.js";
 import LocalInfoModel from "../../self/models/localInfo.model.js";
+import BlogModel from "../../self/models/blog.model.js";
 
 
 // ── Helpers ────────────────────────────────────────────────────────────────
@@ -109,6 +110,16 @@ export const createMetaData = async (req, res, next) => {
             localInfoData.metaDataId = metaData._id;
             await localInfoData.save();
             return sendSuccess(res, StatusCodes.OK, "Meta data created successfully", localInfoData);
+        }
+
+        else if(typeOfPage == "blog") {
+            const blogData = await BlogModel.findById(pageId);
+            if (!blogData) {
+                return errorHandler(StatusCodes.NOT_FOUND, "Blog article not found", next);
+            }
+            blogData.metaDataId = metaData._id;
+            await blogData.save();
+            return sendSuccess(res, StatusCodes.OK, "Meta data created successfully", blogData);
         }
 
         return sendSuccess(res, StatusCodes.CREATED, "Meta data created successfully", metaData);

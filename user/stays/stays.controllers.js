@@ -1,6 +1,7 @@
 import StayModel from "../../self/models/stay.model.js";
 import Advertisement from "../../self/models/advertisement.model.js";
 import { StaysPageSections } from "../../self/models/staysPage.model.js";
+import { StayDetailSections } from "../../self/models/stayDetailSections.model.js";
 import { errorHandler, sendSuccess, StatusCodes } from "../../self/utility/error.utils.js";
 
 // Fetch all stays (for main grid)
@@ -43,5 +44,20 @@ export const getStaysPageSections = async (req, res, next) => {
         return sendSuccess(res, StatusCodes.OK, "Stays page sections fetched successfully", sectionsContent || null);
     } catch (error) {
         return errorHandler(StatusCodes.INTERNAL_SERVER_ERROR, error.message || "Failed to fetch stays page sections", next);
+    }
+};
+
+// Fetch per-stay custom content sections for UserApp (by slug)
+export const getStayDetailSectionsUser = async (req, res, next) => {
+    try {
+        const { staySlug } = req.params;
+        const stay = await StayModel.findOne({ slug: staySlug }).select("_id");
+        if (!stay) {
+            return errorHandler(StatusCodes.NOT_FOUND, "Stay not found", next);
+        }
+        const sections = await StayDetailSections.findOne({ stayId: stay._id });
+        return sendSuccess(res, StatusCodes.OK, "Stay detail sections fetched successfully", sections || null);
+    } catch (error) {
+        return errorHandler(StatusCodes.INTERNAL_SERVER_ERROR, error.message || "Failed to fetch stay detail sections", next);
     }
 };

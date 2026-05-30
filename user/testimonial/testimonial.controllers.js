@@ -44,3 +44,16 @@ export const deleteMyTestimonial = async (req, res, next) => {
         return errorHandler(StatusCodes.INTERNAL_SERVER_ERROR, error.message || "Failed to delete testimonial", next);
     }
 };
+
+export const getApprovedTestimonialsPublic = async (req, res, next) => {
+    try {
+        const testimonials = await Testimonial.find({ status: "approved" })
+            .sort({ isFeatured: -1, createdAt: -1 })
+            .populate("user", "name");
+
+        return sendSuccess(res, StatusCodes.OK, "Approved testimonials fetched successfully", testimonials);
+    } catch (error) {
+        return errorHandler(StatusCodes.INTERNAL_SERVER_ERROR, error.message || "Failed to fetch approved testimonials", next);
+    }
+};
+

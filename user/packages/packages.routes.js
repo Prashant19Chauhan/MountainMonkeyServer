@@ -7,7 +7,8 @@ import {
     getPopularPackages,
     getPackageAdvertisements,
     getAllPackages,
-    getPackagesPageSections
+    getPackagesPageSections,
+    getPackageDetailSectionsUser
 } from "./packages.controllers.js";
 
 import {
@@ -22,6 +23,7 @@ router.get("/tropical", getTropicalPackages);
 router.get("/popular", getPopularPackages);
 router.get("/advertisements", getPackageAdvertisements);
 router.get("/page/sections", getPackagesPageSections);
+router.get("/detail-sections/:packageSlug", getPackageDetailSectionsUser);
 
 
 router.get("/details/:packageSlug/destination-local-info/:destinationId", getPackageDestinationLocalInfo);

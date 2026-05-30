@@ -7,7 +7,8 @@ import {
     getExploreActivities,
     getActivityAdvertisements,
     getAllActivities,
-    getActivitiesPageSections
+    getActivitiesPageSections,
+    getActivityDetailSectionsUser
 } from "./activities.controllers.js";
 
 import {
@@ -22,6 +23,7 @@ router.get("/popular", getPopularActivities);
 router.get("/explore", getExploreActivities);
 router.get("/advertisements", getActivityAdvertisements);
 router.get("/page/sections", getActivitiesPageSections);
+router.get("/detail-sections/:activitySlug", getActivityDetailSectionsUser);
 
 
 router.get("/:activitySlug/details", getActivityDetails);

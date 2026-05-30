@@ -7,6 +7,7 @@ import {
     getPackage,
     updatePackageCurrentPrice
 } from "./package.controllers.js";
+import { getPackageDetailSections, updatePackageDetailSections } from "./packageDetailSections.controllers.js";
 import { authMiddleware } from "../../self/middleware/auth.middlewares.js";
 
 const router = express.Router();
@@ -19,5 +20,8 @@ router.get("/", authMiddleware(["admin"], ["admin"]), getPackages);
 router.delete("/:slug", authMiddleware(["admin"], ["admin"]), deletePackage);
 router.get("/:slug", authMiddleware(["admin"], ["admin"]), getPackage);
 
+// Per-package custom content sections
+router.get("/:slug/detail-sections", authMiddleware(["admin"], ["admin"]), getPackageDetailSections);
+router.post("/:slug/detail-sections", authMiddleware(["admin"], ["admin"]), updatePackageDetailSections);
 
 export default router;

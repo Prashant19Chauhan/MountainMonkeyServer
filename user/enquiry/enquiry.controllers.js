@@ -7,6 +7,7 @@ import { errorHandler, sendSuccess, StatusCodes } from "../../self/utility/error
 
 export const createEnquiry = async (req, res, next) => {
     try {
+        console.log(req.body)
         const {
             name,
             email,
@@ -21,12 +22,10 @@ export const createEnquiry = async (req, res, next) => {
             message
         } = req.body;
 
-        // Basic validations
         if (!name || !email || !phone || !enquiryType || !itemId || !itemTitle || !message) {
             return errorHandler(StatusCodes.BAD_REQUEST, "Required fields are missing", next);
         }
 
-        // 1. Fetch the product to identify its admin owner
         let product = null;
         if (enquiryType === "stay") {
             product = await StayModel.findById(itemId);
@@ -64,9 +63,35 @@ export const createEnquiry = async (req, res, next) => {
         };
 
         const newEnquiry = await EnquiryModel.create(enquiryData);
-
         return sendSuccess(res, StatusCodes.CREATED, "Enquiry submitted successfully", newEnquiry);
     } catch (error) {
         return errorHandler(StatusCodes.INTERNAL_SERVER_ERROR, error.message || "Failed to submit enquiry", next);
+    }
+};
+
+export const getMyEnquiries = async (req, res, next) => {
+    try {
+        let { page = 1, limit = 10 } = req.query;
+        page = Math.max(1, Number(page));
+        limit = Math.max(1, Number(limit));
+
+        const userId = req.user.id;
+
+        const [enquiries, total] = await Promise.all([
+            EnquiryModel.find({ userId })
+                .sort({ createdAt: -1 })
+                .skip((page - 1) * limit)
+                .limit(limit),
+            EnquiryModel.countDocuments({ userId }),
+        ]);
+
+        return sendSuccess(res, StatusCodes.OK, "Enquiries fetched successfully", enquiries, {
+            total,
+            totalPages: Math.ceil(total / limit),
+            currentPage: page,
+            limit,
+        });
+    } catch (error) {
+        return errorHandler(StatusCodes.INTERNAL_SERVER_ERROR, error.message || "Failed to fetch enquiries", next);
     }
 };
